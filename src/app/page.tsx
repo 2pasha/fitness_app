@@ -37,6 +37,7 @@ import { ExpandedWeeklyGoal } from "@/components/home/ExpandedWeeklyGoal";
 import { ExpandedMuscularLoad } from "@/components/home/ExpandedMuscularLoad";
 import { ExpandedTodayPlan } from "@/components/home/ExpandedTodayPlan";
 import { ExpandedLastSession } from "@/components/home/ExpandedLastSession";
+import { MuscularLoadBodyMap } from "@/components/home/MuscularLoadBodyMap";
 
 const CORE_MUSCLES_MOBILE = [
   "Quads",
@@ -749,7 +750,7 @@ export default function HevyAppPage() {
             </div>
           </div>
 
-          {/* Muscular Load Card */}
+          {/* Muscular Load Card — Node ID: gXu83 */}
           <div
             role="button"
             tabIndex={0}
@@ -758,7 +759,7 @@ export default function HevyAppPage() {
               if (e.key === "Enter" || e.key === " ")
                 setExpandedView("muscular_load");
             }}
-            className="flex w-full cursor-pointer flex-col gap-[6px] rounded-[24px] bg-white pt-[18px] px-[18px] pb-[10px] transition active:scale-[0.99]"
+            className="flex w-full cursor-pointer flex-col gap-[14px] rounded-[24px] bg-white p-[18px] transition active:scale-[0.99]"
           >
             <div className="flex items-center justify-between pb-[6px]">
               <span className="text-[17px] font-semibold text-[#0B0D17]">
@@ -770,49 +771,14 @@ export default function HevyAppPage() {
             </div>
 
             {loading && !analytics ? (
-              <div className="space-y-3 py-2">
-                {Array.from({ length: 8 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="h-6 w-full animate-pulse rounded-lg bg-[#ECEEF3]"
-                  />
-                ))}
-              </div>
+              <div className="flex h-[280px] w-full animate-pulse items-center justify-center rounded-2xl bg-[#ECEEF3]" />
             ) : (
-              mobileMuscleRows.map((row) => (
-                <div
-                  key={row.name}
-                  className="flex items-center gap-[12px] py-[8px]"
-                >
-                  <span className="w-[86px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
-                    {translateMuscle(row.name, locale)}
-                  </span>
-                  <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
-                    <div
-                      className={`h-full rounded-[4px] transition-all duration-500 ${
-                        row.isOptimal ? "bg-[#2E3BFF]" : "bg-[#FF7A33]"
-                      }`}
-                      style={{ width: `${row.pct}%` }}
-                    />
-                  </div>
-                  <span className="w-[20px] shrink-0 text-right text-[14px] font-semibold text-[#0B0D17]">
-                    {row.sets}
-                  </span>
-                  <div
-                    className={`flex h-[22px] w-[64px] shrink-0 items-center justify-center rounded-[11px] ${
-                      row.isOptimal ? "bg-[#B9F2D2]" : "bg-[#FFE3D2]"
-                    }`}
-                  >
-                    <span
-                      className={`text-[10px] font-bold tracking-[0.8px] ${
-                        row.isOptimal ? "text-[#0E6A37]" : "text-[#B2430A]"
-                      }`}
-                    >
-                      {row.isOptimal ? t.optimalBadge : t.lowBadge}
-                    </span>
-                  </div>
-                </div>
-              ))
+              <MuscularLoadBodyMap
+                muscles={desktopMuscleRows.map((r) => ({
+                  name: r.name,
+                  sets: r.sets,
+                }))}
+              />
             )}
           </div>
 
@@ -1388,7 +1354,7 @@ export default function HevyAppPage() {
                 </div>
               </div>
 
-              {/* Muscular Load Card (Desktop 10 muscles) */}
+              {/* Muscular Load Card (Desktop — Node ID: gXu83) */}
               <div
                 role="button"
                 tabIndex={0}
@@ -1397,9 +1363,9 @@ export default function HevyAppPage() {
                   if (e.key === "Enter" || e.key === " ")
                     setExpandedView("muscular_load");
                 }}
-                className="flex flex-1 cursor-pointer flex-col justify-between gap-[4px] rounded-[24px] bg-white pt-[20px] px-[20px] pb-[16px] transition hover:shadow-sm"
+                className="flex flex-1 cursor-pointer flex-col justify-between gap-[14px] rounded-[24px] bg-white p-[20px] transition hover:shadow-sm"
               >
-                <div className="flex items-center justify-between pb-[8px]">
+                <div className="flex items-center justify-between pb-[6px]">
                   <span className="text-[18px] font-semibold text-[#0B0D17]">
                     {t.muscularLoad}
                   </span>
@@ -1409,49 +1375,14 @@ export default function HevyAppPage() {
                 </div>
 
                 {loading && !analytics ? (
-                  <div className="space-y-3 py-2">
-                    {Array.from({ length: 10 }).map((_, idx) => (
-                      <div
-                        key={idx}
-                        className="h-6 w-full animate-pulse rounded-lg bg-[#ECEEF3]"
-                      />
-                    ))}
-                  </div>
+                  <div className="flex h-[280px] w-full animate-pulse items-center justify-center rounded-2xl bg-[#ECEEF3]" />
                 ) : (
-                  desktopMuscleRows.map((row) => (
-                    <div
-                      key={row.name}
-                      className="flex items-center gap-[12px] py-[8px]"
-                    >
-                      <span className="w-[100px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
-                        {translateMuscle(row.name, locale)}
-                      </span>
-                      <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
-                        <div
-                          className={`h-full rounded-[4px] transition-all duration-500 ${
-                            row.isOptimal ? "bg-[#2E3BFF]" : "bg-[#FF7A33]"
-                          }`}
-                          style={{ width: `${row.pct}%` }}
-                        />
-                      </div>
-                      <span className="w-[20px] shrink-0 text-right text-[14px] font-semibold text-[#0B0D17]">
-                        {row.sets}
-                      </span>
-                      <div
-                        className={`flex h-[22px] w-[64px] shrink-0 items-center justify-center rounded-[11px] ${
-                          row.isOptimal ? "bg-[#B9F2D2]" : "bg-[#FFE3D2]"
-                        }`}
-                      >
-                        <span
-                          className={`text-[10px] font-bold tracking-[0.8px] ${
-                            row.isOptimal ? "text-[#0E6A37]" : "text-[#B2430A]"
-                          }`}
-                        >
-                          {row.isOptimal ? t.optimalBadge : t.lowBadge}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+                  <MuscularLoadBodyMap
+                    muscles={desktopMuscleRows.map((r) => ({
+                      name: r.name,
+                      sets: r.sets,
+                    }))}
+                  />
                 )}
               </div>
             </div>

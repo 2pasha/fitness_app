@@ -1027,13 +1027,14 @@ export function getDemoAnalyticsPayload(): DashboardAnalyticsPayload {
   ];
 
   const muscleVolumes: MuscleVolumeSummary[] = [
-    { muscleGroup: "Quadriceps", weeklyWorkingSets: 12, last3WorkoutsSets: 9, recommendedMinSets: 10, recommendedMaxSets: 18, status: "optimal" },
-    { muscleGroup: "Chest", weeklyWorkingSets: 10, last3WorkoutsSets: 6, recommendedMinSets: 10, recommendedMaxSets: 20, status: "optimal" },
-    { muscleGroup: "Upper Back", weeklyWorkingSets: 10, last3WorkoutsSets: 6, recommendedMinSets: 10, recommendedMaxSets: 18, status: "optimal" },
-    { muscleGroup: "Shoulders", weeklyWorkingSets: 10, last3WorkoutsSets: 6, recommendedMinSets: 10, recommendedMaxSets: 18, status: "optimal" },
-    { muscleGroup: "Hamstrings", weeklyWorkingSets: 7, last3WorkoutsSets: 5, recommendedMinSets: 8, recommendedMaxSets: 16, status: "under" },
-    { muscleGroup: "Lats", weeklyWorkingSets: 6, last3WorkoutsSets: 3, recommendedMinSets: 8, recommendedMaxSets: 16, status: "under" },
-    { muscleGroup: "Arms (Biceps / Triceps)", weeklyWorkingSets: 6, last3WorkoutsSets: 3, recommendedMinSets: 8, recommendedMaxSets: 16, status: "under" },
+    { muscleGroup: "Quads", weeklyWorkingSets: 7, last3WorkoutsSets: 11, thirtyDaysSets: 28, recommendedMinSets: 6, recommendedMaxSets: 18, status: "optimal" },
+    { muscleGroup: "Shoulders", weeklyWorkingSets: 6, last3WorkoutsSets: 9, thirtyDaysSets: 24, recommendedMinSets: 6, recommendedMaxSets: 18, status: "optimal" },
+    { muscleGroup: "Chest", weeklyWorkingSets: 4, last3WorkoutsSets: 8, thirtyDaysSets: 22, recommendedMinSets: 6, recommendedMaxSets: 20, status: "optimal" },
+    { muscleGroup: "Lats", weeklyWorkingSets: 8, last3WorkoutsSets: 8, thirtyDaysSets: 20, recommendedMinSets: 6, recommendedMaxSets: 18, status: "optimal" },
+    { muscleGroup: "Calves", weeklyWorkingSets: 4, last3WorkoutsSets: 4, thirtyDaysSets: 10, recommendedMinSets: 6, recommendedMaxSets: 16, status: "under" },
+    { muscleGroup: "Triceps", weeklyWorkingSets: 3, last3WorkoutsSets: 3, thirtyDaysSets: 9, recommendedMinSets: 6, recommendedMaxSets: 16, status: "under" },
+    { muscleGroup: "Biceps", weeklyWorkingSets: 3, last3WorkoutsSets: 3, thirtyDaysSets: 9, recommendedMinSets: 6, recommendedMaxSets: 16, status: "under" },
+    { muscleGroup: "Abs", weeklyWorkingSets: 0, last3WorkoutsSets: 3, thirtyDaysSets: 6, recommendedMinSets: 6, recommendedMaxSets: 16, status: "under" },
   ];
 
   return {

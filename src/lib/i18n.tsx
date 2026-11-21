@@ -35,6 +35,8 @@ export const MUSCLE_LABELS: Record<Locale, Record<string, string>> = {
     Biceps: "Biceps",
     Abs: "Abs",
     Glutes: "Glutes",
+    "Lower back": "Lower back",
+    Traps: "Traps",
     Accessory: "Accessory",
   },
   uk: {
@@ -49,6 +51,8 @@ export const MUSCLE_LABELS: Record<Locale, Record<string, string>> = {
     Biceps: "Біцепс",
     Abs: "Прес",
     Glutes: "Сідниці",
+    "Lower back": "Поперек",
+    Traps: "Трапеції",
     Accessory: "Додаткові",
   },
 };
@@ -215,6 +219,10 @@ export const translations = {
     setsLast3: "Sets · last 3 sessions",
     optimalBadge: "OPTIMAL",
     lowBadge: "LOW",
+    frontLabel: "FRONT",
+    backLabel: "BACK",
+    notTrainedPrefix: "Not trained",
+    allMusclesTrained: "All tracked muscle groups trained in range",
     // Today's AI plan card
     todaysAiPlan: "Today's AI plan",
     todaysPlanTitle: "Today's plan",
@@ -351,6 +359,10 @@ export const translations = {
     setsLast3: "Підходи · останні 3 тренування",
     optimalBadge: "НОРМА",
     lowBadge: "МАЛО",
+    frontLabel: "СПЕРЕДУ",
+    backLabel: "ЗЗАДУ",
+    notTrainedPrefix: "Без навантаження",
+    allMusclesTrained: "Усі основні м'язи задіяні",
     // Today's AI plan card
     todaysAiPlan: "AI-план на сьогодні",
     todaysPlanTitle: "План на сьогодні",

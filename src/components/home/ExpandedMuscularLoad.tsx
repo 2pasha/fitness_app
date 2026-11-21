@@ -11,6 +11,7 @@ import {
   cleanExerciseName,
   MobileBottomTabBar,
 } from "./shared";
+import { MuscularLoadBodyMap } from "./MuscularLoadBodyMap";
 import {
   MOVEMENT_PATTERN_LABELS,
   translateMuscle,
@@ -47,8 +48,8 @@ const CORE_MUSCLES_DEFAULT: NormalizedMuscleItem[] = [
   { muscleGroup: "Shoulders", last3WorkoutsSets: 9, weeklyWorkingSets: 6, thirtyDaysSets: 24 },
   { muscleGroup: "Chest", last3WorkoutsSets: 8, weeklyWorkingSets: 4, thirtyDaysSets: 22 },
   { muscleGroup: "Lats", last3WorkoutsSets: 8, weeklyWorkingSets: 8, thirtyDaysSets: 20 },
-  { muscleGroup: "Upper back", last3WorkoutsSets: 6, weeklyWorkingSets: 3, thirtyDaysSets: 16 },
-  { muscleGroup: "Hamstrings", last3WorkoutsSets: 6, weeklyWorkingSets: 3, thirtyDaysSets: 16 },
+  { muscleGroup: "Upper back", last3WorkoutsSets: 0, weeklyWorkingSets: 3, thirtyDaysSets: 16 },
+  { muscleGroup: "Hamstrings", last3WorkoutsSets: 0, weeklyWorkingSets: 3, thirtyDaysSets: 16 },
   { muscleGroup: "Triceps", last3WorkoutsSets: 3, weeklyWorkingSets: 3, thirtyDaysSets: 9 },
   { muscleGroup: "Calves", last3WorkoutsSets: 4, weeklyWorkingSets: 4, thirtyDaysSets: 10 },
   { muscleGroup: "Biceps", last3WorkoutsSets: 3, weeklyWorkingSets: 3, thirtyDaysSets: 9 },
@@ -222,6 +223,7 @@ export function ExpandedMuscularLoad({
   const [rangeTab, setRangeTab] = useState<RangeTab>("last3");
   const [showInfoBanner, setShowInfoBanner] = useState(false);
   const [locallyAddedMuscles, setLocallyAddedMuscles] = useState<Record<string, boolean>>({});
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
 
   const normalizedMuscles = useMemo<NormalizedMuscleItem[]>(() => {
     if (!analytics?.muscleVolumes || analytics.muscleVolumes.length === 0) {
@@ -465,6 +467,19 @@ export function ExpandedMuscularLoad({
             <p className="text-[13px] font-normal text-[#A9ADC2]">{rangeHintText}</p>
           </div>
 
+          {/* Interactive Body Map Card (Node ID: gXu83) */}
+          <div className="flex flex-col gap-[14px] rounded-[24px] bg-white p-[18px]">
+            <MuscularLoadBodyMap
+              muscles={normalizedMuscles.map((m) => ({
+                name: m.muscleGroup,
+                sets: getSetsForRange(m),
+              }))}
+              targetThreshold={targetThreshold}
+              selectedMuscle={selectedMuscle}
+              onSelectMuscle={setSelectedMuscle}
+            />
+          </div>
+
           {/* Needs Work card */}
           <div className="flex flex-col gap-[4px] rounded-[24px] bg-white px-[18px] pt-[18px] pb-[8px]">
             <div className="flex items-center justify-between pb-[8px]">
@@ -492,11 +507,21 @@ export function ExpandedMuscularLoad({
                 );
                 const suggestion = getSuggestionForMuscle(m.muscleGroup);
                 const inPlan = isSuggestionInPlan(m.muscleGroup, suggestion);
+                const isSelected = selectedMuscle === m.muscleGroup;
 
                 return (
                   <div
                     key={m.muscleGroup}
-                    className="flex flex-col gap-[10px] border-t border-[#EEF0F4] py-[12px]"
+                    onClick={() =>
+                      setSelectedMuscle((prev) =>
+                        prev === m.muscleGroup ? null : m.muscleGroup
+                      )
+                    }
+                    className={`flex cursor-pointer flex-col gap-[10px] border-t border-[#EEF0F4] py-[12px] transition ${
+                      isSelected
+                        ? "-mx-[10px] rounded-[16px] bg-[#FFE3D2]/35 px-[10px]"
+                        : ""
+                    }`}
                   >
                     {/* Top row */}
                     <div className="flex items-center justify-between gap-[12px]">
@@ -588,11 +613,21 @@ export function ExpandedMuscularLoad({
                 100,
                 Math.max(15, Math.round((sets / maxScale) * 100))
               );
+              const isSelected = selectedMuscle === m.muscleGroup;
 
               return (
                 <div
                   key={m.muscleGroup}
-                  className="flex items-center gap-[12px] py-[8px]"
+                  onClick={() =>
+                    setSelectedMuscle((prev) =>
+                      prev === m.muscleGroup ? null : m.muscleGroup
+                    )
+                  }
+                  className={`flex cursor-pointer items-center gap-[12px] py-[8px] transition ${
+                    isSelected
+                      ? "-mx-[10px] rounded-[12px] bg-[#ECEEF3] px-[10px]"
+                      : ""
+                  }`}
                 >
                   <span className="w-[96px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
                     {translateMuscle(m.muscleGroup, locale)}
