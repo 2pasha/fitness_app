@@ -3,14 +3,11 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   ChevronRight,
-  Dumbbell,
   History,
-  House,
   RefreshCw,
   Send,
   SlidersHorizontal,
   Sparkles,
-  TrendingUp,
   User,
   X,
 } from "lucide-react";
@@ -20,11 +17,11 @@ import type { DashboardAnalyticsPayload } from "@/lib/analytics/demo-data";
 import {
   cleanExerciseName,
   cleanRoutineTitle,
+  CompactNavPill,
   ExpandedViewType,
   getTargetBadgeForExercise,
   GoalProgressRing,
   MobileBottomTabBar,
-  MobileStatusBar,
 } from "@/components/home/shared";
 import { ExpandedWeeklyGoal } from "@/components/home/ExpandedWeeklyGoal";
 import { ExpandedMuscularLoad } from "@/components/home/ExpandedMuscularLoad";
@@ -616,9 +613,7 @@ export default function HevyAppPage() {
           expandedView !== null ? "hidden" : "block"
         }`}
       >
-        <MobileStatusBar />
-
-        <div className="flex flex-col gap-[10px] px-[16px] pt-[4px] pb-[28px]">
+        <div className="flex flex-col gap-[10px] px-[16px] pt-[16px] pb-[28px]">
           {/* Header */}
           <div className="flex items-center justify-between px-[4px] pb-[14px]">
             <div className="flex flex-col gap-[2px]">
@@ -949,96 +944,68 @@ export default function HevyAppPage() {
       {/* =====================================================================
           MAIN DESKTOP VIEW — Node ID: b4sbg
          ===================================================================== */}
-      <div className="hidden min-h-screen w-full bg-[#ECEEF3] lg:flex">
-        {/* Left Sidebar (248px) */}
-        <aside className="flex w-[248px] shrink-0 flex-col justify-between bg-[#0B0D17] px-[16px] pt-[28px] pb-[20px] text-white">
-          <div className="flex flex-col gap-[28px]">
-            {/* Logo */}
-            <div className="flex items-center gap-[10px] px-[8px]">
-              <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] bg-[#2E3BFF]">
-                <Dumbbell className="h-[16px] w-[16px] text-white" />
-              </div>
-              <span className="text-[19px] font-bold tracking-[-0.4px] text-white">
-                Overload
+      <div className="hidden min-h-screen w-full flex-col bg-[#ECEEF3] lg:flex">
+        {/* Top Bar (L98Eq) */}
+        <header className="flex w-full items-center px-[40px] py-[20px]">
+          {/* Left: Logo */}
+          <div className="flex flex-1 items-center">
+            <div className="flex items-center gap-[10px]">
+              <img
+                src="/spotter-logo.png"
+                alt="Spotter"
+                className="h-[34px] w-[34px] rounded-[10px] object-cover"
+              />
+              <span className="text-[20px] font-bold tracking-[-0.5px] text-[#0B0D17]">
+                Spotter
               </span>
             </div>
-
-            {/* Navigation */}
-            <nav className="flex flex-col gap-[4px]">
-              <button
-                type="button"
-                onClick={() => setExpandedView(null)}
-                className="flex w-full items-center gap-[12px] rounded-[12px] bg-[#2E3BFF] px-[12px] py-[11px] text-left text-white transition"
-              >
-                <House className="h-[20px] w-[20px]" />
-                <span className="text-[15px] font-semibold">Home</span>
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-[12px] rounded-[12px] px-[12px] py-[11px] text-left text-[#C3C6D6] transition hover:bg-white/5"
-              >
-                <Dumbbell className="h-[20px] w-[20px] text-[#8A8FA8]" />
-                <span className="text-[15px] font-medium">Workouts</span>
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-[12px] rounded-[12px] px-[12px] py-[11px] text-left text-[#C3C6D6] transition hover:bg-white/5"
-              >
-                <TrendingUp className="h-[20px] w-[20px] text-[#8A8FA8]" />
-                <span className="text-[15px] font-medium">Progress</span>
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-[12px] rounded-[12px] px-[12px] py-[11px] text-left text-[#C3C6D6] transition hover:bg-white/5"
-              >
-                <Sparkles className="h-[20px] w-[20px] text-[#8A8FA8]" />
-                <span className="text-[15px] font-medium">Plan</span>
-              </button>
-            </nav>
           </div>
 
-          <div className="flex flex-col gap-[28px]">
-            {/* Sync Card */}
-            <div className="flex flex-col gap-[10px] rounded-[16px] bg-white/[0.06] p-[14px]">
-              <div className="flex items-center gap-[8px]">
-                <span className="h-[8px] w-[8px] rounded-full bg-[#3DDC84]" />
-                <span className="text-[13px] font-semibold text-white">
+          {/* Center: Compact Nav Pill (B3SeO) */}
+          <div className="flex shrink-0 justify-center">
+            <CompactNavPill onHomeClick={() => setExpandedView(null)} />
+          </div>
+
+          {/* Right: Sync Pill + Avatar */}
+          <div className="flex flex-1 items-center justify-end gap-[10px]">
+            <div className="flex h-[44px] items-center gap-[10px] rounded-[22px] bg-white pr-[8px] pl-[16px]">
+              <span className="h-[8px] w-[8px] shrink-0 rounded-full bg-[#3DDC84]" />
+              <div className="flex flex-col leading-tight">
+                <span className="text-[13px] font-semibold text-[#0B0D17]">
                   Synced with Hevy
                 </span>
+                <span className="text-[11px] font-normal text-[#5E6275]">
+                  {dbStats.workoutsInDb} workouts ·{" "}
+                  {formatTimeAgo(dbStats.lastSyncAt)}
+                </span>
               </div>
-              <p className="text-[12px] font-normal text-[#8A8FA8]">
-                {dbStats.workoutsInDb} workouts · {dbStats.setsInDb} sets ·{" "}
-                {formatTimeAgo(dbStats.lastSyncAt)}
-              </p>
               <button
                 type="button"
                 onClick={() => loadAllData(true)}
                 disabled={syncing}
-                className="flex h-[36px] w-full items-center justify-center gap-[8px] rounded-[18px] border border-white/15 text-[13px] font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
+                aria-label="Sync with Hevy"
+                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[15px] bg-[#ECEEF3] text-[#0B0D17] transition hover:bg-[#dfe2ea] active:scale-95 disabled:opacity-50"
               >
                 <RefreshCw
                   className={`h-[14px] w-[14px] ${
                     syncing ? "animate-spin" : ""
                   }`}
                 />
-                <span>{syncing ? "Syncing..." : "Sync now"}</span>
               </button>
             </div>
 
-            {/* User */}
-            <div className="flex items-center gap-[10px] px-[8px]">
-              <div className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/10">
-                <User className="h-[16px] w-[16px] text-white" />
-              </div>
-              <span className="text-[14px] font-normal text-[#C3C6D6]">
-                Account
-              </span>
-            </div>
+            <button
+              type="button"
+              aria-label="Account"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[22px] bg-white text-[#0B0D17] transition hover:bg-white/80 active:scale-95"
+            >
+              <User className="h-[18px] w-[18px]" />
+            </button>
           </div>
-        </aside>
+        </header>
 
         {/* Main Content Area */}
-        <main className="flex flex-1 flex-col gap-[28px] px-[40px] pt-[36px] pb-[40px]">
+        <main className="flex flex-1 flex-col gap-[28px] px-[40px] pt-[12px] pb-[40px]">
           {/* Header Row */}
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-[4px]">

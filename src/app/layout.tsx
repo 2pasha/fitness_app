@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Overload · Hevy AI Training Companion",
+  title: "Spotter · Hevy AI Training Companion",
   description:
     "Syncs with Hevy API, tracks progressive overload & e1RM trends, and generates today's workout routine with Google Gemini.",
 };

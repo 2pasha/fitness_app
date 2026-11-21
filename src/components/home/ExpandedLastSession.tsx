@@ -5,7 +5,6 @@ import { ChevronLeft, ExternalLink, TrendingUp } from "lucide-react";
 import { DetailedWorkoutView } from "@/app/api/hevy/workouts/route";
 import { DashboardAnalyticsPayload } from "@/lib/analytics/demo-data";
 import {
-  MobileStatusBar,
   cleanExerciseName,
   extractEquipmentFromTitle,
 } from "./shared";
@@ -137,9 +136,7 @@ export function ExpandedLastSession({
 
   return (
     <div className="flex min-h-full flex-col bg-[#ECEEF3] pb-[12px]">
-      <MobileStatusBar light={false} />
-
-      <div className="flex flex-col gap-[12px] px-[16px] pb-[28px] pt-[4px] lg:pt-5">
+      <div className="flex flex-col gap-[12px] px-[16px] pb-[28px] pt-[16px] lg:pt-5">
         {/* Nav Bar */}
         <div className="flex items-center justify-between pb-[8px]">
           <button

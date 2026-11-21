@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Signal, Wifi, BatteryFull, House, Dumbbell, TrendingUp, Sparkles } from "lucide-react";
+import { House, Dumbbell, TrendingUp, Sparkles } from "lucide-react";
 
 export type ExpandedViewType =
   | null
@@ -77,16 +77,44 @@ export function GoalProgressRing({
   );
 }
 
-export function MobileStatusBar({ light = false }: { light?: boolean }) {
-  const color = light ? "text-white" : "text-[#0B0D17]";
+export function CompactNavPill({
+  onHomeClick,
+}: {
+  onHomeClick?: () => void;
+}) {
   return (
-    <div className="flex h-[62px] w-full items-center justify-between px-[28px] lg:hidden">
-      <span className={`font-inter text-[16px] font-semibold ${color}`}>9:41</span>
-      <div className={`flex items-center gap-[6px] ${color}`}>
-        <Signal className="h-[17px] w-[17px]" strokeWidth={2.2} />
-        <Wifi className="h-[17px] w-[17px]" strokeWidth={2.2} />
-        <BatteryFull className="h-[17px] w-[17px]" strokeWidth={2.2} />
-      </div>
+    <div className="pointer-events-auto flex h-[60px] items-center gap-[4px] rounded-[30px] bg-[#0B0D17]/[0.95] p-[6px] shadow-[0_8px_24px_rgba(11,13,23,0.25)] backdrop-blur-md">
+      <button
+        type="button"
+        onClick={onHomeClick}
+        className="flex h-[48px] items-center gap-[8px] rounded-[24px] bg-[#B9F2D2] pr-[18px] pl-[14px] text-[#0B0D17] transition active:scale-95"
+      >
+        <House className="h-[20px] w-[20px] text-[#0B0D17]" />
+        <span className="text-[14px] font-bold leading-none text-[#0B0D17]">
+          Home
+        </span>
+      </button>
+      <button
+        type="button"
+        aria-label="Workouts"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
+      >
+        <Dumbbell className="h-[20px] w-[20px]" />
+      </button>
+      <button
+        type="button"
+        aria-label="Progress"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
+      >
+        <TrendingUp className="h-[20px] w-[20px]" />
+      </button>
+      <button
+        type="button"
+        aria-label="Plan"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
+      >
+        <Sparkles className="h-[20px] w-[20px]" />
+      </button>
     </div>
   );
 }
@@ -98,39 +126,7 @@ export function MobileBottomTabBar({
 }) {
   return (
     <div className="pointer-events-none fixed bottom-3 left-0 right-0 z-40 flex justify-center lg:hidden">
-      <div className="pointer-events-auto flex h-[60px] items-center gap-[4px] rounded-[30px] bg-[#0B0D17]/[0.95] p-[6px] shadow-[0_8px_24px_rgba(11,13,23,0.25)] backdrop-blur-md">
-        <button
-          type="button"
-          onClick={onHomeClick}
-          className="flex h-[48px] items-center gap-[8px] rounded-[24px] bg-[#B9F2D2] pr-[18px] pl-[14px] text-[#0B0D17] transition active:scale-95"
-        >
-          <House className="h-[20px] w-[20px] text-[#0B0D17]" />
-          <span className="text-[14px] font-bold leading-none text-[#0B0D17]">
-            Home
-          </span>
-        </button>
-        <button
-          type="button"
-          aria-label="Workouts"
-          className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
-        >
-          <Dumbbell className="h-[20px] w-[20px]" />
-        </button>
-        <button
-          type="button"
-          aria-label="Progress"
-          className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
-        >
-          <TrendingUp className="h-[20px] w-[20px]" />
-        </button>
-        <button
-          type="button"
-          aria-label="Plan"
-          className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
-        >
-          <Sparkles className="h-[20px] w-[20px]" />
-        </button>
-      </div>
+      <CompactNavPill onHomeClick={onHomeClick} />
     </div>
   );
 }

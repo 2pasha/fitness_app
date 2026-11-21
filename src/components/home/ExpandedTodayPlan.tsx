@@ -21,7 +21,6 @@ import {
   classifyMovementPattern,
 } from "@/lib/analytics/demo-data";
 import {
-  MobileStatusBar,
   cleanExerciseName,
   cleanRoutineTitle,
   getTargetBadgeForExercise,
@@ -318,8 +317,7 @@ export function ExpandedTodayPlan({
     <div className="flex min-h-full flex-col justify-between bg-[#ECEEF3]">
       <div>
         {/* Blue Hero section */}
-        <div className="flex flex-col gap-[14px] rounded-b-[32px] bg-[#2E3BFF] px-[16px] pb-[22px] pt-0 lg:pt-5">
-          <MobileStatusBar light={true} />
+        <div className="flex flex-col gap-[14px] rounded-b-[32px] bg-[#2E3BFF] px-[16px] pb-[22px] pt-[16px] lg:pt-5">
 
           {/* Nav Bar */}
           <div className="flex items-center justify-between">

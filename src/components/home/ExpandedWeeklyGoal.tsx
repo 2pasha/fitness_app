@@ -15,7 +15,6 @@ import {
   cleanRoutineTitle,
   GoalProgressRing,
   MobileBottomTabBar,
-  MobileStatusBar,
 } from "./shared";
 
 export interface ExpandedWeeklyGoalProps {
@@ -256,10 +255,8 @@ export function ExpandedWeeklyGoal({
   return (
     <div className="min-h-screen w-full bg-[#ECEEF3] pb-[86px] text-[#0B0D17]">
       <div className="mx-auto max-w-[430px] lg:max-w-none">
-        <MobileStatusBar />
-
         {/* Content */}
-        <div className="flex flex-col gap-[12px] px-[16px] pt-[4px] pb-[28px]">
+        <div className="flex flex-col gap-[12px] px-[16px] pt-[16px] pb-[28px]">
           {/* Nav Bar */}
           <div className="flex items-center justify-between pb-[8px]">
             <button
