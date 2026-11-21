@@ -201,7 +201,7 @@ export function ExpandedWeeklyGoal({
       }).length;
 
       fiveWeeks.push({
-        weekLabel: `W${wNum}`,
+        weekLabel: `${locale === "uk" ? "Т" : "W"}${wNum}`,
         count: countInWeek,
         isCurrent: offset === 0,
       });
@@ -308,12 +308,12 @@ export function ExpandedWeeklyGoal({
             <button
               type="button"
               onClick={onOpenPlan}
-              className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[24px] bg-[#B9F2D2] text-[#0B0D17] transition hover:brightness-95 active:scale-[0.99]"
+              className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[24px] bg-[#B9F2D2] px-4 text-[#0B0D17] transition hover:brightness-95 active:scale-[0.99]"
             >
-              <span className="text-[15px] font-bold text-[#0B0D17]">
+              <span className="truncate text-[15px] font-bold text-[#0B0D17]">
                 {t.doTodayCta(displayRoutineTitle)}
               </span>
-              <ArrowRight className="h-[16px] w-[16px] text-[#0B0D17]" strokeWidth={2.4} />
+              <ArrowRight className="h-[16px] w-[16px] shrink-0 text-[#0B0D17]" strokeWidth={2.4} />
             </button>
           </div>
 
@@ -430,9 +430,9 @@ export function ExpandedWeeklyGoal({
 
           {/* Last 5 weeks */}
           <div className="flex flex-col gap-[14px] rounded-[24px] bg-white p-[18px]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[17px] font-semibold text-[#0B0D17]">{t.last5Weeks}</h2>
-              <span className="text-[12px] font-normal text-[#5E6275]">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="min-w-0 truncate text-[17px] font-semibold text-[#0B0D17]">{t.last5Weeks}</h2>
+              <span className="shrink-0 whitespace-nowrap text-[12px] font-normal text-[#5E6275]">
                 {t.avgPerWeek(avgPerWeek.toFixed(1))}
               </span>
             </div>
@@ -496,7 +496,7 @@ export function ExpandedWeeklyGoal({
             ref={goalSettingRef}
             className="flex items-center justify-between gap-[14px] rounded-[24px] bg-white px-[18px] py-[14px]"
           >
-            <div className="flex flex-col gap-[2px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
               <span className="text-[15px] font-semibold text-[#0B0D17]">
                 {t.sessionsPerWeek}
               </span>
@@ -505,7 +505,7 @@ export function ExpandedWeeklyGoal({
               </span>
             </div>
 
-            <div className="flex items-center gap-[4px] rounded-full bg-[#ECEEF3] p-[4px]">
+            <div className="flex shrink-0 items-center gap-[4px] rounded-full bg-[#ECEEF3] p-[4px]">
               <button
                 type="button"
                 onClick={() => onUpdateWeeklyGoal(Math.max(1, weeklyGoal - 1))}

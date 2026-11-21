@@ -24,7 +24,9 @@ export function LanguageToggle({ compact = false }: { compact?: boolean }) {
       <button
         type="button"
         onClick={() => setLocale("en")}
-        className={`flex h-full items-center justify-center rounded-full px-3 text-[12px] font-bold transition ${
+        className={`flex h-full items-center justify-center rounded-full text-[12px] font-bold transition ${
+          compact ? "px-2.5" : "px-3"
+        } ${
           locale === "en"
             ? "bg-[#0B0D17] text-white"
             : "text-[#5E6275] hover:text-[#0B0D17]"
@@ -35,7 +37,9 @@ export function LanguageToggle({ compact = false }: { compact?: boolean }) {
       <button
         type="button"
         onClick={() => setLocale("uk")}
-        className={`flex h-full items-center justify-center rounded-full px-3 text-[12px] font-bold transition ${
+        className={`flex h-full items-center justify-center rounded-full text-[12px] font-bold transition ${
+          compact ? "px-2.5" : "px-3"
+        } ${
           locale === "uk"
             ? "bg-[#0B0D17] text-white"
             : "text-[#5E6275] hover:text-[#0B0D17]"
@@ -103,11 +107,15 @@ export function GoalProgressRing({
           className="transition-all duration-500 ease-out"
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
         <span className={`font-bold leading-none text-white ${valueFontSize} ${letterSpacing}`}>
           {completed}/{goal}
         </span>
-        <span className={`mt-1 font-normal leading-none text-[#A9ADC2] ${unitFontSize}`}>
+        <span
+          className={`mt-1 max-w-full truncate font-normal leading-none text-[#A9ADC2] ${
+            size <= 120 ? "text-[11px]" : unitFontSize
+          }`}
+        >
           {t.sessions}
         </span>
       </div>
@@ -129,7 +137,7 @@ export function CompactNavPill({
         className="flex h-[48px] items-center gap-[8px] rounded-[24px] bg-[#B9F2D2] pr-[18px] pl-[14px] text-[#0B0D17] transition active:scale-95"
       >
         <House className="h-[20px] w-[20px] text-[#0B0D17]" />
-        <span className="text-[14px] font-bold leading-none text-[#0B0D17]">
+        <span className="whitespace-nowrap text-[14px] font-bold leading-none text-[#0B0D17]">
           {t.navHome}
         </span>
       </button>

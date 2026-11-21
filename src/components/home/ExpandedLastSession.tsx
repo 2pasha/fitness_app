@@ -305,7 +305,7 @@ export function ExpandedLastSession({
                     </span>
                   </div>
 
-                  <div className="flex shrink-0 flex-col items-end">
+                  <div className="flex shrink-0 flex-col items-end whitespace-nowrap">
                     <span className="text-[15px] font-bold text-[#0B0D17]">
                       {bestE1rmFormatted} {t.kg}
                     </span>
@@ -344,7 +344,7 @@ export function ExpandedLastSession({
                         }`}
                       >
                         <span
-                          className={`text-[13px] font-bold ${
+                          className={`whitespace-nowrap text-[13px] font-bold ${
                             isTopWeightHighlight
                               ? "text-[#2E3BFF]"
                               : "text-[#0B0D17]"
@@ -352,7 +352,7 @@ export function ExpandedLastSession({
                         >
                           {w} {t.kg}
                         </span>
-                        <span className="text-[12px] font-normal text-[#5E6275]">
+                        <span className="whitespace-nowrap text-[12px] font-normal text-[#5E6275]">
                           × {s.reps ?? 0}
                         </span>
                       </div>

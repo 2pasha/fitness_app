@@ -349,14 +349,14 @@ export const translations = {
     goalComplete: "Ціль виконано!",
     weeklyGoalReached: "Тижневу ціль досягнуто!",
     sessionsToGo: (n: number) =>
-      `Залишилось ${n} ${pluralizeUk(n, "тренування", "тренування", "тренувань")}`,
+      `Ще ${n} ${pluralizeUk(n, "тренування", "тренування", "тренувань")}`,
     todayClosesWeek: (title: string) =>
       `Сьогоднішнє ${title} закриває твій тиждень.`,
     todayKeepsPace: (title: string) =>
       `Сьогоднішнє ${title} тримає тебе в темпі.`,
     // Muscular load card
     muscularLoad: "Навантаження м'язів",
-    setsLast3: "Підходи · останні 3 тренування",
+    setsLast3: "Підх. · ост. 3",
     optimalBadge: "НОРМА",
     lowBadge: "МАЛО",
     frontLabel: "СПЕРЕДУ",
@@ -400,12 +400,12 @@ export const translations = {
     doTodayCta: (title: string) => `Виконати ${title} сьогодні`,
     thisWeek: "Цього тижня",
     restDay: "Відпочинок",
-    plannedMeta: (mins: number) => `Заплановано · ~${mins} хв`,
+    plannedMeta: (mins: number) => `План · ~${mins} хв`,
     last5Weeks: "Останні 5 тижнів",
     avgPerWeek: (avg: string) => `В серед. ${avg} / тиж.`,
     goalTag: (n: number) => `Ціль ${n}`,
     bestWeekInsight: (n: number) =>
-      `Досягнення ${n} сьогодні зробить цей тиждень найкращим за місяць.`,
+      `Виконання цілі (${n}) сьогодні зробить цей тиждень найкращим за місяць.`,
     sessionsPerWeek: "Тренувань на тиждень",
     resetsEverySunday: "Оновлюється щонеділі",
     endsTonight: "завершується сьогодні",
@@ -438,7 +438,7 @@ export const translations = {
     // Expanded Today's Plan
     aiPlanEyebrow: (dateStr: string) => `AI-план · ${dateStr}`,
     routineNameInHevy: "Назва програми в Hevy",
-    setCol: "Підхід",
+    setCol: "Підх.",
     previousCol: "Попередній",
     repsCol: "Повт.",
     restLabel: (m: number, s: string) => `Відпочинок ${m}:${s}`,
@@ -451,12 +451,13 @@ export const translations = {
     backBtn: "Назад",
     generatePlanBtn: "Згенерувати план",
     sentSuccess: (title: string, ex: number, sets: number) =>
-      `Надіслано «${title}» (${ex} вправ · ${sets} підходів) у Hevy!`,
+      `Надіслано «${title}» (${ex} ${pluralizeUk(ex, "вправа", "вправи", "вправ")} · ${sets} ${pluralizeUk(sets, "підхід", "підходи", "підходів")}) у Hevy!`,
     // Expanded Last Session
     noRecentSession: "Немає останнього тренування.",
     liftsGotStronger: (n: number) =>
       `${n} ${pluralizeUk(n, "вправа стала", "вправи стали", "вправ стали")} сильнішими`,
-    liftsCompleted: (n: number) => `Виконано ${n} вправ`,
+    liftsCompleted: (n: number) =>
+      `Виконано ${n} ${pluralizeUk(n, "вправу", "вправи", "вправ")}`,
     ledTheWay: (name: string, pct: number) =>
       `${name} показала найкращий ріст: +${pct}% e1RM.`,
     dippedSlightly: (name: string) =>

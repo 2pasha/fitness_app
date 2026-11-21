@@ -222,6 +222,32 @@ export function ExpandedTodayPlan({
     });
 
     if (plusOneEx || catchupEx) {
+      if (locale === "uk") {
+        const parts: string[] = ["Складено на основі останніх 3 тренувань."];
+        if (plusOneEx) {
+          const name = cleanExerciseName(plusOneEx.title);
+          const w =
+            plusOneEx.sets.find((s) => s.type !== "warmup")?.weight_kg ??
+            plusOneEx.sets[0]?.weight_kg ??
+            40;
+          const maxReps = Math.max(...plusOneEx.sets.map((s) => s.reps ?? 12));
+          parts.push(
+            `${name} тримається на ${w} кг — ціль ${maxReps} повт.`
+          );
+        }
+        if (catchupEx) {
+          const muscle = translateMuscle(
+            getMuscleLabel(catchupEx, analytics),
+            locale
+          );
+          const shortName = cleanExerciseName(catchupEx.title);
+          parts.push(
+            `${muscle} недоотримали об'єм, тому додано ${shortName}.`
+          );
+        }
+        return parts.join(" ");
+      }
+
       const parts: string[] = ["Built from your last 3 sessions."];
       if (plusOneEx) {
         const name = cleanExerciseName(plusOneEx.title);
@@ -250,7 +276,7 @@ export function ExpandedTodayPlan({
     if (coachReply) {
       return coachReply.replace(/[#*_]/g, "").slice(0, 145) + "...";
     }
-    return "Built from your last 3 sessions to balance movement patterns and drive progressive overload.";
+    return t.defaultWhyPlanBuilt;
   })();
 
   const handleSetChange = (
@@ -509,7 +535,7 @@ export function ExpandedTodayPlan({
                   </div>
 
                   <span
-                    className={`shrink-0 rounded-full px-[10px] py-[4px] text-[11px] font-semibold ${pillClasses}`}
+                    className={`shrink-0 whitespace-nowrap rounded-full px-[10px] py-[4px] text-[11px] font-semibold ${pillClasses}`}
                   >
                     {translateTargetBadge(badge.label, locale)}
                   </span>
@@ -538,10 +564,10 @@ export function ExpandedTodayPlan({
                     <div className="flex flex-col gap-[6px]">
                       {/* Header Row */}
                       <div className="flex items-center gap-[8px] px-[4px] text-[11px] font-semibold text-[#5E6275]">
-                        <span className="w-[38px]">{t.setCol}</span>
-                        <span className="flex-1">{t.previousCol}</span>
-                        <span className="w-[64px] text-center">{t.kg}</span>
-                        <span className="w-[64px] text-center">{t.repsCol}</span>
+                        <span className="w-[40px] shrink-0 whitespace-nowrap">{t.setCol}</span>
+                        <span className="min-w-0 flex-1 truncate">{t.previousCol}</span>
+                        <span className="w-[64px] shrink-0 text-center">{t.kg}</span>
+                        <span className="w-[64px] shrink-0 text-center">{t.repsCol}</span>
                       </div>
 
                       {/* Set Rows */}
@@ -562,7 +588,7 @@ export function ExpandedTodayPlan({
                             key={sIdx}
                             className="flex items-center gap-[8px] px-[4px]"
                           >
-                            <span className="w-[34px] text-[14px] font-semibold text-[#0B0D17]">
+                            <span className="w-[40px] shrink-0 text-[14px] font-semibold text-[#0B0D17]">
                               {sIdx + 1}
                             </span>
                             <span className="flex-1 text-[13px] font-normal text-[#5E6275]">
@@ -611,9 +637,9 @@ export function ExpandedTodayPlan({
                     </div>
 
                     {/* Footer row */}
-                    <div className="flex items-center justify-between px-[4px] pt-[2px]">
-                      <div className="flex items-center gap-[6px] text-[13px] font-normal text-[#5E6275]">
-                        <Timer className="h-[14px] w-[14px]" />
+                    <div className="flex items-center justify-between gap-2 px-[4px] pt-[2px]">
+                      <div className="flex items-center gap-[6px] whitespace-nowrap text-[13px] font-normal text-[#5E6275]">
+                        <Timer className="h-[14px] w-[14px] shrink-0" />
                         <span>
                           {t.restLabel(restMinutes, restRemSeconds)}
                         </span>
@@ -621,7 +647,7 @@ export function ExpandedTodayPlan({
                       <button
                         type="button"
                         onClick={() => handleAddSet(idx)}
-                        className="flex items-center gap-[4px] text-[13px] font-semibold text-[#2E3BFF] transition hover:opacity-80"
+                        className="flex shrink-0 items-center gap-[4px] whitespace-nowrap text-[13px] font-semibold text-[#2E3BFF] transition hover:opacity-80"
                       >
                         <Plus className="h-[14px] w-[14px]" />
                         <span>{t.addSet}</span>

@@ -324,14 +324,14 @@ export function MuscularLoadBodyMap({
                     onMouseEnter={() => setHoveredMuscle(item.name)}
                     onMouseLeave={() => setHoveredMuscle(null)}
                     onClick={(e) => handleToggleMuscle(item.name, e)}
-                    className={`flex cursor-pointer items-center justify-between rounded-[8px] -mx-[4px] px-[4px] transition ${
+                    className={`flex cursor-pointer items-center justify-between gap-[6px] rounded-[8px] -mx-[4px] px-[4px] transition ${
                       isActive ? "bg-[#ECEEF3]" : "hover:bg-[#F5F6F9]"
                     }`}
                   >
-                    <span className="truncate text-[14px] font-medium text-[#0B0D17]">
+                    <span className="min-w-0 truncate text-[14px] font-medium text-[#0B0D17]">
                       {translateMuscle(item.name, locale)}
                     </span>
-                    <span className="text-[14px] font-semibold text-[#0B0D17]">
+                    <span className="shrink-0 text-[14px] font-semibold text-[#0B0D17]">
                       {item.sets}
                     </span>
                   </div>
@@ -356,14 +356,14 @@ export function MuscularLoadBodyMap({
                     onMouseEnter={() => setHoveredMuscle(item.name)}
                     onMouseLeave={() => setHoveredMuscle(null)}
                     onClick={(e) => handleToggleMuscle(item.name, e)}
-                    className={`flex cursor-pointer items-center justify-between rounded-[8px] -mx-[4px] px-[4px] transition ${
+                    className={`flex cursor-pointer items-center justify-between gap-[6px] rounded-[8px] -mx-[4px] px-[4px] transition ${
                       isActive ? "bg-[#FFE3D2]/60" : "hover:bg-[#F5F6F9]"
                     }`}
                   >
-                    <span className="truncate text-[14px] font-medium text-[#0B0D17]">
+                    <span className="min-w-0 truncate text-[14px] font-medium text-[#0B0D17]">
                       {translateMuscle(item.name, locale)}
                     </span>
-                    <span className="text-[14px] font-semibold text-[#0B0D17]">
+                    <span className="shrink-0 text-[14px] font-semibold text-[#0B0D17]">
                       {item.sets}
                     </span>
                   </div>

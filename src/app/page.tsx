@@ -644,17 +644,21 @@ export default function HevyAppPage() {
       >
         <div className="flex flex-col gap-[10px] px-[16px] pt-[16px] pb-[28px]">
           {/* Header */}
-          <div className="flex items-center justify-between px-[4px] pb-[14px]">
-            <div className="flex flex-col gap-[2px]">
-              <h1 className="text-[34px] font-bold leading-tight tracking-[-1px] text-[#0B0D17]">
+          <div className="flex items-center justify-between gap-[8px] px-[4px] pb-[14px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+              <h1
+                className={`truncate font-bold leading-tight tracking-[-1px] text-[#0B0D17] ${
+                  locale === "uk" ? "text-[26px]" : "text-[34px]"
+                }`}
+              >
                 {weekdayTitle}
               </h1>
-              <p className="text-[14px] font-normal text-[#5E6275]">
+              <p className="truncate text-[13px] font-normal text-[#5E6275] sm:text-[14px]">
                 {monthDayStr} · {t.weekPrefix} {weekNum}
               </p>
             </div>
 
-            <div className="flex items-center gap-[8px]">
+            <div className="flex shrink-0 items-center gap-[6px] sm:gap-[8px]">
               <LanguageToggle compact />
               <button
                 type="button"
@@ -761,11 +765,11 @@ export default function HevyAppPage() {
             }}
             className="flex w-full cursor-pointer flex-col gap-[14px] rounded-[24px] bg-white p-[18px] transition active:scale-[0.99]"
           >
-            <div className="flex items-center justify-between pb-[6px]">
-              <span className="text-[17px] font-semibold text-[#0B0D17]">
+            <div className="flex items-center justify-between gap-2 pb-[6px]">
+              <span className="min-w-0 truncate text-[17px] font-semibold text-[#0B0D17]">
                 {t.muscularLoad}
               </span>
-              <span className="text-[12px] font-normal text-[#5E6275]">
+              <span className="shrink-0 whitespace-nowrap text-[12px] font-normal text-[#5E6275]">
                 {t.setsLast3}
               </span>
             </div>
@@ -787,16 +791,16 @@ export default function HevyAppPage() {
             onClick={() => setExpandedView("today_plan")}
             className="flex w-full cursor-pointer flex-col gap-[16px] rounded-[24px] bg-[#2E3BFF] p-[20px] text-white transition active:scale-[0.99]"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col gap-[4px]">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
                 <span className="text-[13px] font-normal text-[#C9CCFF]">
                   {t.todaysAiPlan}
                 </span>
-                <h2 className="text-[28px] font-bold leading-none tracking-[-0.5px] text-white">
+                <h2 className="truncate text-[28px] font-bold leading-none tracking-[-0.5px] text-white">
                   {plannedTitleClean}
                 </h2>
               </div>
-              <div className="rounded-full bg-white/15 px-[10px] py-[6px]">
+              <div className="shrink-0 whitespace-nowrap rounded-full bg-white/15 px-[10px] py-[6px]">
                 <span className="text-[12px] font-semibold text-white">
                   ~{plannedDurationMin} {t.min}
                 </span>
@@ -826,12 +830,12 @@ export default function HevyAppPage() {
                   return (
                     <div
                       key={`${ex.exercise_template_id}-${i}`}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between gap-3"
                     >
-                      <span className="text-[15px] font-medium text-white">
+                      <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-white">
                         {cleanExerciseName(ex.title)}
                       </span>
-                      <span className="text-[14px] font-normal text-[#C9CCFF]">
+                      <span className="shrink-0 whitespace-nowrap text-[14px] font-normal text-[#C9CCFF]">
                         {count}×{reps} · {weight} {t.kg}
                       </span>
                     </div>
@@ -907,11 +911,11 @@ export default function HevyAppPage() {
                 <div className="h-3.5 w-48 animate-pulse rounded bg-[#ECEEF3]" />
               </div>
             ) : latestWorkout ? (
-              <div className="flex flex-1 flex-col gap-[2px]">
-                <span className="text-[15px] font-semibold text-[#0B0D17]">
+              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                <span className="truncate text-[15px] font-semibold text-[#0B0D17]">
                   {formatLastSessionTitle(latestWorkout)}
                 </span>
-                <span className="text-[13px] font-normal text-[#5E6275]">
+                <span className="truncate text-[13px] font-normal text-[#5E6275]">
                   {Math.round(latestWorkout.duration_seconds / 60)} {t.min} ·{" "}
                   {t.setsCount(latestWorkout.total_working_sets)} ·{" "}
                   {(latestWorkout.total_volume_kg / 1000).toFixed(1)} {t.t}{" "}
@@ -919,11 +923,11 @@ export default function HevyAppPage() {
                 </span>
               </div>
             ) : (
-              <div className="flex flex-1 flex-col gap-[2px]">
-                <span className="text-[15px] font-semibold text-[#0B0D17]">
+              <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                <span className="truncate text-[15px] font-semibold text-[#0B0D17]">
                   {t.noSessionsYet}
                 </span>
-                <span className="text-[13px] font-normal text-[#5E6275]">
+                <span className="truncate text-[13px] font-normal text-[#5E6275]">
                   {t.tapRefreshToSync}
                 </span>
               </div>
@@ -940,10 +944,10 @@ export default function HevyAppPage() {
          ===================================================================== */}
       <div className="hidden min-h-screen w-full flex-col bg-[#ECEEF3] lg:flex">
         {/* Top Bar (L98Eq) */}
-        <header className="flex w-full items-center px-[40px] py-[20px]">
+        <header className="flex w-full items-center gap-[16px] px-[24px] py-[20px] xl:px-[40px]">
           {/* Left: Logo */}
-          <div className="flex flex-1 items-center">
-            <div className="flex items-center gap-[10px]">
+          <div className="flex min-w-0 flex-1 items-center">
+            <div className="flex shrink-0 items-center gap-[10px]">
               <img
                 src="/spotter-logo.png"
                 alt="Spotter"
@@ -964,13 +968,13 @@ export default function HevyAppPage() {
           <div className="flex flex-1 items-center justify-end gap-[10px]">
             <LanguageToggle />
 
-            <div className="flex h-[44px] items-center gap-[10px] rounded-[22px] bg-white pr-[8px] pl-[16px]">
+            <div className="flex h-[44px] shrink-0 items-center gap-[10px] rounded-[22px] bg-white pr-[8px] pl-[16px]">
               <span className="h-[8px] w-[8px] shrink-0 rounded-full bg-[#3DDC84]" />
               <div className="flex flex-col leading-tight">
-                <span className="text-[13px] font-semibold text-[#0B0D17]">
+                <span className="whitespace-nowrap text-[13px] font-semibold text-[#0B0D17]">
                   {t.syncedWithHevy}
                 </span>
-                <span className="text-[11px] font-normal text-[#5E6275]">
+                <span className="whitespace-nowrap text-[11px] font-normal text-[#5E6275]">
                   {t.workoutsCount(dbStats.workoutsInDb)} ·{" "}
                   {formatTimeAgoLocalized(dbStats.lastSyncAt, locale)}
                 </span>
@@ -1097,11 +1101,11 @@ export default function HevyAppPage() {
                 <div className="flex flex-col">
                   {/* Table Header */}
                   <div className="flex items-center gap-[16px] border-b border-white/20 pb-[10px] text-[12px] font-medium text-[#C9CCFF]">
-                    <span className="w-[24px]">#</span>
-                    <span className="flex-1">{t.tableExercise}</span>
-                    <span className="w-[110px]">{t.tableSetsReps}</span>
-                    <span className="w-[80px]">{t.tableWeight}</span>
-                    <span className="w-[96px] text-right">{t.tableTarget}</span>
+                    <span className="w-[24px] shrink-0">#</span>
+                    <span className="min-w-0 flex-1">{t.tableExercise}</span>
+                    <span className="w-[110px] shrink-0 whitespace-nowrap">{t.tableSetsReps}</span>
+                    <span className="w-[80px] shrink-0 whitespace-nowrap">{t.tableWeight}</span>
+                    <span className="w-[104px] shrink-0 whitespace-nowrap text-right">{t.tableTarget}</span>
                   </div>
 
                   {generatingPlan && !editablePlan ? (
@@ -1151,26 +1155,26 @@ export default function HevyAppPage() {
                             !isLast ? "border-b border-white/[0.12]" : ""
                           }`}
                         >
-                          <span className="w-[24px] text-[14px] font-normal text-[#C9CCFF]">
+                          <span className="w-[24px] shrink-0 text-[14px] font-normal text-[#C9CCFF]">
                             {String(idx + 1).padStart(2, "0")}
                           </span>
-                          <div className="flex flex-1 items-center gap-[10px]">
-                            <span className="text-[16px] font-semibold text-white">
+                          <div className="flex min-w-0 flex-1 items-center gap-[10px]">
+                            <span className="truncate text-[16px] font-semibold text-white">
                               {cleanExerciseName(ex.title)}
                             </span>
-                            <span className="text-[13px] font-normal text-[#C9CCFF]">
+                            <span className="shrink-0 whitespace-nowrap text-[13px] font-normal text-[#C9CCFF]">
                               {translateMuscle(muscleGroup, locale)}
                             </span>
                           </div>
-                          <span className="w-[110px] text-[15px] font-medium text-white">
+                          <span className="w-[110px] shrink-0 whitespace-nowrap text-[15px] font-medium text-white">
                             {setCount} × {repVal}
                           </span>
-                          <span className="w-[80px] text-[15px] font-medium text-white">
+                          <span className="w-[80px] shrink-0 whitespace-nowrap text-[15px] font-medium text-white">
                             {weightVal} {t.kg}
                           </span>
-                          <div className="flex w-[96px] justify-end">
+                          <div className="flex w-[104px] shrink-0 justify-end">
                             <span
-                              className={`rounded-full px-[10px] py-[4px] text-[12px] font-semibold ${
+                              className={`whitespace-nowrap rounded-full px-[10px] py-[4px] text-[12px] font-semibold ${
                                 badge.tone === "green"
                                   ? "bg-[#B9F2D2] text-[#0E6A37]"
                                   : badge.tone === "orange"
@@ -1200,12 +1204,12 @@ export default function HevyAppPage() {
                 )}
 
                 {/* Actions Row */}
-                <div className="flex items-center gap-[10px]">
+                <div className="flex flex-wrap items-center gap-[10px]">
                   <button
                     type="button"
                     onClick={handleSendToHevy}
                     disabled={sendingToHevy || !editablePlan}
-                    className="flex h-[52px] items-center justify-center gap-[8px] rounded-[26px] bg-white px-[28px] text-[16px] font-bold text-[#2E3BFF] transition hover:bg-white/90 disabled:opacity-60"
+                    className="flex h-[52px] shrink-0 items-center justify-center gap-[8px] whitespace-nowrap rounded-[26px] bg-white px-[28px] text-[16px] font-bold text-[#2E3BFF] transition hover:bg-white/90 disabled:opacity-60"
                   >
                     <span>
                       {sendingToHevy ? t.sending : t.sendToHevy}
@@ -1216,7 +1220,7 @@ export default function HevyAppPage() {
                   <button
                     type="button"
                     onClick={() => setExpandedView("today_plan")}
-                    className="flex h-[52px] items-center justify-center gap-[8px] rounded-[26px] border border-white/35 px-[20px] text-[15px] font-medium text-white transition hover:bg-white/10"
+                    className="flex h-[52px] shrink-0 items-center justify-center gap-[8px] whitespace-nowrap rounded-[26px] border border-white/35 px-[20px] text-[15px] font-medium text-white transition hover:bg-white/10"
                   >
                     <SlidersHorizontal className="h-[16px] w-[16px]" />
                     <span>{t.editPlan}</span>
@@ -1226,7 +1230,7 @@ export default function HevyAppPage() {
                     type="button"
                     onClick={() => handleGeneratePlan()}
                     disabled={generatingPlan}
-                    className="flex h-[52px] items-center justify-center gap-[8px] rounded-[26px] border border-white/35 px-[20px] text-[15px] font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
+                    className="flex h-[52px] shrink-0 items-center justify-center gap-[8px] whitespace-nowrap rounded-[26px] border border-white/35 px-[20px] text-[15px] font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
                   >
                     <RefreshCw
                       className={`h-[16px] w-[16px] ${
@@ -1258,11 +1262,11 @@ export default function HevyAppPage() {
                   <History className="h-[20px] w-[20px]" />
                 </div>
 
-                <div className="flex flex-1 flex-col gap-[2px]">
+                <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
                   <span className="text-[12px] font-normal text-[#5E6275]">
                     {t.lastSession}
                   </span>
-                  <span className="text-[17px] font-semibold text-[#0B0D17]">
+                  <span className="truncate text-[17px] font-semibold text-[#0B0D17]">
                     {latestWorkout
                       ? formatLastSessionTitle(latestWorkout)
                       : loading
@@ -1273,7 +1277,7 @@ export default function HevyAppPage() {
 
                 {latestWorkout && (
                   <>
-                    <div className="flex flex-col border-l border-[#E2E4EA] pl-[16px]">
+                    <div className="flex shrink-0 flex-col whitespace-nowrap border-l border-[#E2E4EA] pl-[16px]">
                       <span className="text-[18px] font-bold text-[#0B0D17]">
                         {Math.round(latestWorkout.duration_seconds / 60)} {t.min}
                       </span>
@@ -1282,7 +1286,7 @@ export default function HevyAppPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-col border-l border-[#E2E4EA] pl-[16px]">
+                    <div className="flex shrink-0 flex-col whitespace-nowrap border-l border-[#E2E4EA] pl-[16px]">
                       <span className="text-[18px] font-bold text-[#0B0D17]">
                         {latestWorkout.exercises.length}
                       </span>
@@ -1291,7 +1295,7 @@ export default function HevyAppPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-col border-l border-[#E2E4EA] pl-[16px]">
+                    <div className="flex shrink-0 flex-col whitespace-nowrap border-l border-[#E2E4EA] pl-[16px]">
                       <span className="text-[18px] font-bold text-[#0B0D17]">
                         {latestWorkout.total_working_sets}
                       </span>
@@ -1300,7 +1304,7 @@ export default function HevyAppPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-col border-l border-[#E2E4EA] pl-[16px]">
+                    <div className="flex shrink-0 flex-col whitespace-nowrap border-l border-[#E2E4EA] pl-[16px]">
                       <span className="text-[18px] font-bold text-[#0B0D17]">
                         {Math.round(
                           latestWorkout.total_volume_kg
@@ -1365,11 +1369,11 @@ export default function HevyAppPage() {
                 }}
                 className="flex flex-1 cursor-pointer flex-col justify-between gap-[14px] rounded-[24px] bg-white p-[20px] transition hover:shadow-sm"
               >
-                <div className="flex items-center justify-between pb-[6px]">
-                  <span className="text-[18px] font-semibold text-[#0B0D17]">
+                <div className="flex items-center justify-between gap-2 pb-[6px]">
+                  <span className="min-w-0 truncate text-[18px] font-semibold text-[#0B0D17]">
                     {t.muscularLoad}
                   </span>
-                  <span className="text-[12px] font-normal text-[#5E6275]">
+                  <span className="shrink-0 whitespace-nowrap text-[12px] font-normal text-[#5E6275]">
                     {t.setsLast3}
                   </span>
                 </div>

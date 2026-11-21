@@ -404,7 +404,7 @@ export function ExpandedMuscularLoad({
             <button
               type="button"
               onClick={() => setRangeTab("last3")}
-              className={`flex h-[36px] flex-1 items-center justify-center rounded-full text-[13px] transition ${
+              className={`flex h-[36px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-2 text-[13px] transition ${
                 rangeTab === "last3"
                   ? "bg-white font-semibold text-[#0B0D17] shadow-xs"
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
@@ -415,7 +415,7 @@ export function ExpandedMuscularLoad({
             <button
               type="button"
               onClick={() => setRangeTab("7d")}
-              className={`flex h-[36px] flex-1 items-center justify-center rounded-full text-[13px] transition ${
+              className={`flex h-[36px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-2 text-[13px] transition ${
                 rangeTab === "7d"
                   ? "bg-white font-semibold text-[#0B0D17] shadow-xs"
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
@@ -426,7 +426,7 @@ export function ExpandedMuscularLoad({
             <button
               type="button"
               onClick={() => setRangeTab("30d")}
-              className={`flex h-[36px] flex-1 items-center justify-center rounded-full text-[13px] transition ${
+              className={`flex h-[36px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-2 text-[13px] transition ${
                 rangeTab === "30d"
                   ? "bg-white font-semibold text-[#0B0D17] shadow-xs"
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
@@ -629,22 +629,26 @@ export function ExpandedMuscularLoad({
                       : ""
                   }`}
                 >
-                  <span className="w-[96px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
+                  <span
+                    className={`shrink-0 truncate text-[14px] font-medium text-[#0B0D17] ${
+                      locale === "uk" ? "w-[108px]" : "w-[96px]"
+                    }`}
+                  >
                     {translateMuscle(m.muscleGroup, locale)}
                   </span>
 
-                  <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
+                  <div className="h-[8px] min-w-[44px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
                     <div
                       className="h-full rounded-[4px] bg-[#2E3BFF] transition-all duration-300"
                       style={{ width: `${widthPct}%` }}
                     />
                   </div>
 
-                  <span className="w-[20px] shrink-0 text-right text-[14px] font-semibold text-[#0B0D17]">
+                  <span className="w-[22px] shrink-0 text-right text-[14px] font-semibold text-[#0B0D17]">
                     {sets}
                   </span>
 
-                  <span className="w-[40px] shrink-0 text-right text-[12px] font-normal text-[#5E6275]">
+                  <span className="w-[42px] shrink-0 whitespace-nowrap text-right text-[12px] font-normal text-[#5E6275]">
                     {t.d7Prefix} {m.weeklyWorkingSets}
                   </span>
                 </div>
