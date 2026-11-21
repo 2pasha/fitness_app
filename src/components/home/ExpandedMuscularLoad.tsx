@@ -11,6 +11,11 @@ import {
   cleanExerciseName,
   MobileBottomTabBar,
 } from "./shared";
+import {
+  MOVEMENT_PATTERN_LABELS,
+  translateMuscle,
+  useI18n,
+} from "@/lib/i18n";
 
 export interface SuggestedExercisePayload {
   muscleGroup: string;
@@ -213,6 +218,7 @@ export function ExpandedMuscularLoad({
   onAddSuggestedExercise,
   onBack,
 }: ExpandedMuscularLoadProps) {
+  const { locale, t } = useI18n();
   const [rangeTab, setRangeTab] = useState<RangeTab>("last3");
   const [showInfoBanner, setShowInfoBanner] = useState(false);
   const [locallyAddedMuscles, setLocallyAddedMuscles] = useState<Record<string, boolean>>({});
@@ -350,10 +356,10 @@ export function ExpandedMuscularLoad({
 
   const rangeHintText =
     rangeTab === "last3"
-      ? "Target is 6+ working sets per muscle across your last 3 sessions."
+      ? t.hintLast3
       : rangeTab === "7d"
-        ? "Target is 6+ working sets per muscle across the last 7 days."
-        : "Target is 18+ working sets per muscle across the last 30 days.";
+        ? t.hint7d
+        : t.hint30d;
 
   return (
     <div className="min-h-screen w-full bg-[#ECEEF3] pb-[86px] text-[#0B0D17]">
@@ -365,20 +371,20 @@ export function ExpandedMuscularLoad({
             <button
               type="button"
               onClick={onBack}
-              aria-label="Back"
+              aria-label={t.backBtn}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] transition hover:bg-white/80 active:scale-95"
             >
               <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2.2} />
             </button>
 
             <h1 className="text-[17px] font-semibold text-[#0B0D17]">
-              Muscular load
+              {t.muscularLoad}
             </h1>
 
             <button
               type="button"
               onClick={() => setShowInfoBanner((prev) => !prev)}
-              aria-label="Muscular load info"
+              aria-label={t.muscularLoad}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] transition hover:bg-white/80 active:scale-95"
             >
               <Info className="h-[18px] w-[18px]" strokeWidth={2.1} />
@@ -387,9 +393,7 @@ export function ExpandedMuscularLoad({
 
           {showInfoBanner && (
             <div className="rounded-[18px] bg-white px-[16px] py-[12px] text-[13px] leading-relaxed text-[#5E6275]">
-              Research supports 6+ hard working sets per muscle group across every
-              3-session microcycle (~10–20 sets/week) to maximize hypertrophy without
-              junk volume.
+              {t.infoBanner}
             </div>
           )}
 
@@ -404,7 +408,7 @@ export function ExpandedMuscularLoad({
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
               }`}
             >
-              Last 3 sessions
+              {t.rangeLast3}
             </button>
             <button
               type="button"
@@ -415,7 +419,7 @@ export function ExpandedMuscularLoad({
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
               }`}
             >
-              7 days
+              {t.range7d}
             </button>
             <button
               type="button"
@@ -426,7 +430,7 @@ export function ExpandedMuscularLoad({
                   : "font-medium text-[#5E6275] hover:text-[#0B0D17]"
               }`}
             >
-              30 days
+              {t.range30d}
             </button>
           </div>
 
@@ -438,7 +442,7 @@ export function ExpandedMuscularLoad({
                   {inRangeCount}/{totalMuscles}
                 </span>
                 <span className="pb-[3px] text-[14px] font-normal text-[#A9ADC2]">
-                  muscles in range
+                  {t.musclesInRange}
                 </span>
               </div>
             </div>
@@ -465,18 +469,18 @@ export function ExpandedMuscularLoad({
           <div className="flex flex-col gap-[4px] rounded-[24px] bg-white px-[18px] pt-[18px] pb-[8px]">
             <div className="flex items-center justify-between pb-[8px]">
               <h2 className="text-[17px] font-semibold text-[#0B0D17]">
-                Needs work
+                {t.needsWork}
               </h2>
               <div className="rounded-full bg-[#FFE3D2] px-[10px] py-[3px]">
                 <span className="block text-[10px] font-bold tracking-[0.8px] text-[#B2430A]">
-                  {lowMuscles.length} LOW
+                  {t.lowCountBadge(lowMuscles.length)}
                 </span>
               </div>
             </div>
 
             {lowMuscles.length === 0 ? (
               <div className="border-t border-[#EEF0F4] py-[14px] text-[13px] text-[#5E6275]">
-                All 10 muscle groups have reached their target working sets.
+                {t.allMusclesOptimal}
               </div>
             ) : (
               lowMuscles.map((m) => {
@@ -498,11 +502,10 @@ export function ExpandedMuscularLoad({
                     <div className="flex items-center justify-between gap-[12px]">
                       <div className="flex min-w-0 flex-1 flex-col gap-[1px]">
                         <span className="text-[15px] font-semibold text-[#0B0D17]">
-                          {m.muscleGroup}
+                          {translateMuscle(m.muscleGroup, locale)}
                         </span>
                         <span className="text-[12px] font-normal text-[#5E6275]">
-                          {m.last3WorkoutsSets} sets last 3 · {m.weeklyWorkingSets} in 7
-                          days
+                          {t.setsLast3And7d(m.last3WorkoutsSets, m.weeklyWorkingSets)}
                         </span>
                       </div>
 
@@ -526,7 +529,7 @@ export function ExpandedMuscularLoad({
                         </span>
                         <div className="shrink-0 rounded-full px-[12px] py-[6px]">
                           <span className="block text-[12px] font-semibold leading-none text-[#0E6A37]">
-                            In plan
+                            {t.inPlan}
                           </span>
                         </div>
                       </div>
@@ -557,7 +560,7 @@ export function ExpandedMuscularLoad({
                           }}
                           className="shrink-0 rounded-full bg-[#2E3BFF] px-[12px] py-[6px] text-[12px] font-semibold leading-none text-white transition hover:bg-[#2530d9] active:scale-95"
                         >
-                          Add
+                          {t.addBtn}
                         </button>
                       </div>
                     )}
@@ -570,10 +573,10 @@ export function ExpandedMuscularLoad({
           {/* In Range card */}
           <div className="flex flex-col gap-[4px] rounded-[24px] bg-white px-[18px] pt-[18px] pb-[10px]">
             <div className="flex items-center justify-between pb-[8px]">
-              <h2 className="text-[17px] font-semibold text-[#0B0D17]">In range</h2>
+              <h2 className="text-[17px] font-semibold text-[#0B0D17]">{t.inRange}</h2>
               <div className="rounded-full bg-[#B9F2D2] px-[10px] py-[3px]">
                 <span className="block text-[10px] font-bold tracking-[0.8px] text-[#0E6A37]">
-                  {optimalMuscles.length} OPTIMAL
+                  {t.optimalCountBadge(optimalMuscles.length)}
                 </span>
               </div>
             </div>
@@ -591,8 +594,8 @@ export function ExpandedMuscularLoad({
                   key={m.muscleGroup}
                   className="flex items-center gap-[12px] py-[8px]"
                 >
-                  <span className="w-[92px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
-                    {m.muscleGroup}
+                  <span className="w-[96px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
+                    {translateMuscle(m.muscleGroup, locale)}
                   </span>
 
                   <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
@@ -606,8 +609,8 @@ export function ExpandedMuscularLoad({
                     {sets}
                   </span>
 
-                  <span className="w-[36px] shrink-0 text-right text-[12px] font-normal text-[#5E6275]">
-                    7d {m.weeklyWorkingSets}
+                  <span className="w-[40px] shrink-0 text-right text-[12px] font-normal text-[#5E6275]">
+                    {t.d7Prefix} {m.weeklyWorkingSets}
                   </span>
                 </div>
               );
@@ -617,7 +620,7 @@ export function ExpandedMuscularLoad({
           {/* Movement Patterns card */}
           <div className="flex flex-col gap-[10px] rounded-[24px] bg-white p-[18px]">
             <h2 className="text-[17px] font-semibold text-[#0B0D17]">
-              Movement patterns
+              {t.movementPatterns}
             </h2>
 
             <div className="grid grid-cols-2 gap-[8px]">
@@ -628,7 +631,7 @@ export function ExpandedMuscularLoad({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[16px] font-bold text-[#0B0D17]">
-                      {item.sets} sets
+                      {t.setsCount(item.sets)}
                     </span>
                     <CircleCheck
                       className={`h-[16px] w-[16px] shrink-0 ${
@@ -638,7 +641,7 @@ export function ExpandedMuscularLoad({
                     />
                   </div>
                   <span className="text-[12px] font-normal text-[#5E6275]">
-                    {item.shortLabel}
+                    {MOVEMENT_PATTERN_LABELS[locale][item.shortLabel] || item.shortLabel}
                   </span>
                 </div>
               ))}

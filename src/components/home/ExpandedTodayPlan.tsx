@@ -25,6 +25,12 @@ import {
   cleanRoutineTitle,
   getTargetBadgeForExercise,
 } from "./shared";
+import {
+  getDateLocale,
+  translateMuscle,
+  translateTargetBadge,
+  useI18n,
+} from "@/lib/i18n";
 
 export interface ExpandedTodayPlanProps {
   plan: ProposedWorkoutRoutine | null;
@@ -114,6 +120,8 @@ export function ExpandedTodayPlan({
   onRegenerate,
   onBack,
 }: ExpandedTodayPlanProps) {
+  const { locale, t } = useI18n();
+  const dateLocale = getDateLocale(locale);
   const defaultExpanded = plan && plan.exercises.length > 1 ? 1 : 0;
   const [expandedIdx, setExpandedIdx] = useState<number | null>(defaultExpanded);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -123,27 +131,27 @@ export function ExpandedTodayPlan({
   const now = useMemo(() => new Date(), []);
   const formattedTodayShort = useMemo(
     () =>
-      now.toLocaleDateString("en-US", {
+      now.toLocaleDateString(dateLocale, {
         weekday: "short",
         month: "short",
         day: "numeric",
       }),
-    [now]
+    [now, dateLocale]
   );
   const shortDate = useMemo(
     () =>
-      now.toLocaleDateString("en-US", {
+      now.toLocaleDateString(dateLocale, {
         month: "short",
         day: "numeric",
       }),
-    [now]
+    [now, dateLocale]
   );
 
   if (!plan) {
     return (
       <div className="flex min-h-full flex-col items-center justify-center bg-[#ECEEF3] p-8 text-center">
         <p className="text-[15px] font-semibold text-[#0B0D17]">
-          {generatingPlan ? "Generating today's AI plan..." : "No active plan generated yet."}
+          {generatingPlan ? t.generatingPlanMsg : t.noPlanYetMsg}
         </p>
         <div className="mt-4 flex items-center gap-3">
           <button
@@ -151,7 +159,7 @@ export function ExpandedTodayPlan({
             onClick={onBack}
             className="rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#0B0D17]"
           >
-            Back
+            {t.backBtn}
           </button>
           <button
             type="button"
@@ -159,7 +167,7 @@ export function ExpandedTodayPlan({
             disabled={generatingPlan}
             className="rounded-full bg-[#2E3BFF] px-4 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
           >
-            Generate Plan
+            {t.generatePlanBtn}
           </button>
         </div>
       </div>
@@ -185,6 +193,9 @@ export function ExpandedTodayPlan({
 
   // Build concise "Why this plan" summary
   const whyThisPlanText = (() => {
+    if (locale === "uk" && plan.notes) {
+      return plan.notes;
+    }
     const plusOneEx = plan.exercises.find((ex) => {
       const rep = analytics?.exerciseReports.find(
         (r) => r.exerciseTemplateId === ex.exercise_template_id
@@ -324,18 +335,18 @@ export function ExpandedTodayPlan({
             <button
               type="button"
               onClick={onBack}
-              aria-label="Back"
+              aria-label={t.backBtn}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
             >
               <ChevronLeft className="h-[18px] w-[18px]" />
             </button>
             <span className="text-[17px] font-semibold text-white">
-              Today&apos;s plan
+              {t.todaysPlanTitle}
             </span>
             <button
               type="button"
               onClick={onRegenerate}
-              aria-label="More options"
+              aria-label={t.regenerate}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
             >
               <Ellipsis className="h-[18px] w-[18px]" />
@@ -345,23 +356,23 @@ export function ExpandedTodayPlan({
           {/* Titles block */}
           <div className="flex flex-col gap-[6px] px-[4px] pt-[6px]">
             <span className="text-[13px] font-normal text-[#C9CCFF]">
-              AI plan · {formattedTodayShort}
+              {t.aiPlanEyebrow(formattedTodayShort)}
             </span>
             <h1 className="text-[40px] font-bold leading-none tracking-[-1.2px] text-white">
               {cleanedTitle}
             </h1>
             <div className="flex flex-wrap gap-[6px] pt-[4px]">
               <span className="rounded-full bg-white/15 px-[10px] py-[5px] text-[12px] font-semibold text-white">
-                {plan.exercises.length} exercises
+                {t.exercisesCount(plan.exercises.length)}
               </span>
               <span className="rounded-full bg-white/15 px-[10px] py-[5px] text-[12px] font-semibold text-white">
-                {totalSets} sets
+                {t.setsCount(totalSets)}
               </span>
               <span className="rounded-full bg-white/15 px-[10px] py-[5px] text-[12px] font-semibold text-white">
-                ~{plan.estimatedDurationMinutes || 55} min
+                ~{plan.estimatedDurationMinutes || 55} {t.min}
               </span>
               <span className="rounded-full bg-white/15 px-[10px] py-[5px] text-[12px] font-semibold text-white">
-                ≈ {(estimatedVolumeKg / 1000).toFixed(1)} t
+                ≈ {(estimatedVolumeKg / 1000).toFixed(1)} {t.t}
               </span>
             </div>
           </div>
@@ -371,7 +382,7 @@ export function ExpandedTodayPlan({
             <div className="flex items-center gap-[6px]">
               <Sparkles className="h-[14px] w-[14px] text-[#B9F2D2]" />
               <span className="text-[12px] font-semibold text-[#B9F2D2]">
-                Why this plan
+                {t.whyThisPlan}
               </span>
             </div>
             <p className="text-[13px] font-normal leading-snug text-white">
@@ -389,7 +400,7 @@ export function ExpandedTodayPlan({
           >
             <div className="flex min-w-0 flex-1 flex-col gap-[1px]">
               <span className="text-[11px] font-normal text-[#5E6275]">
-                Routine name in Hevy
+                {t.routineNameInHevy}
               </span>
               {editingTitle ? (
                 <input
@@ -492,15 +503,15 @@ export function ExpandedTodayPlan({
                     </span>
                     <span className="truncate text-[12px] font-normal text-[#5E6275]">
                       {isExpanded
-                        ? muscleGroupLabel
-                        : `${muscleGroupLabel} · ${displaySets.length} × ${repCount} · ${weightKg} kg`}
+                        ? translateMuscle(muscleGroupLabel, locale)
+                        : `${translateMuscle(muscleGroupLabel, locale)} · ${displaySets.length} × ${repCount} · ${weightKg} ${t.kg}`}
                     </span>
                   </div>
 
                   <span
                     className={`shrink-0 rounded-full px-[10px] py-[4px] text-[11px] font-semibold ${pillClasses}`}
                   >
-                    {badge.label}
+                    {translateTargetBadge(badge.label, locale)}
                   </span>
 
                   {isExpanded ? (
@@ -527,10 +538,10 @@ export function ExpandedTodayPlan({
                     <div className="flex flex-col gap-[6px]">
                       {/* Header Row */}
                       <div className="flex items-center gap-[8px] px-[4px] text-[11px] font-semibold text-[#5E6275]">
-                        <span className="w-[34px]">Set</span>
-                        <span className="flex-1">Previous</span>
-                        <span className="w-[64px] text-center">kg</span>
-                        <span className="w-[64px] text-center">Reps</span>
+                        <span className="w-[38px]">{t.setCol}</span>
+                        <span className="flex-1">{t.previousCol}</span>
+                        <span className="w-[64px] text-center">{t.kg}</span>
+                        <span className="w-[64px] text-center">{t.repsCol}</span>
                       </div>
 
                       {/* Set Rows */}
@@ -604,7 +615,7 @@ export function ExpandedTodayPlan({
                       <div className="flex items-center gap-[6px] text-[13px] font-normal text-[#5E6275]">
                         <Timer className="h-[14px] w-[14px]" />
                         <span>
-                          Rest {restMinutes}:{restRemSeconds}
+                          {t.restLabel(restMinutes, restRemSeconds)}
                         </span>
                       </div>
                       <button
@@ -613,7 +624,7 @@ export function ExpandedTodayPlan({
                         className="flex items-center gap-[4px] text-[13px] font-semibold text-[#2E3BFF] transition hover:opacity-80"
                       >
                         <Plus className="h-[14px] w-[14px]" />
-                        <span>Add set</span>
+                        <span>{t.addSet}</span>
                       </button>
                     </div>
                   </>
@@ -630,13 +641,13 @@ export function ExpandedTodayPlan({
               className="flex h-[48px] w-full items-center justify-center gap-[6px] rounded-[20px] border border-[#B9BDCB] text-[14px] font-semibold text-[#5E6275] transition hover:bg-white/60"
             >
               <Plus className="h-[16px] w-[16px]" />
-              <span>Add exercise</span>
+              <span>{t.addExercise}</span>
             </button>
           ) : (
             <div className="flex flex-col gap-3 rounded-[20px] bg-white p-[14px]">
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-semibold text-[#0B0D17]">
-                  Add exercise to today&apos;s plan
+                  {t.addExerciseTitle}
                 </span>
                 <button
                   type="button"
@@ -665,7 +676,7 @@ export function ExpandedTodayPlan({
                         {cleanExerciseName(rep.title)}
                       </span>
                       <span className="text-[11px] font-semibold text-[#2E3BFF]">
-                        + Add ({rep.nextTargetWeightKg || rep.currentMaxWeightKg || 30} kg)
+                        + {t.addBtn} ({rep.nextTargetWeightKg || rep.currentMaxWeightKg || 30} {t.kg})
                       </span>
                     </button>
                   ))}
@@ -674,7 +685,7 @@ export function ExpandedTodayPlan({
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="Custom exercise name..."
+                  placeholder={t.customExercisePlaceholder}
                   value={customExTitle}
                   onChange={(e) => setCustomExTitle(e.target.value)}
                   className="h-9 flex-1 rounded-[10px] bg-[#ECEEF3] px-3 text-[13px] text-[#0B0D17] placeholder:text-[#5E6275] focus:outline-none"
@@ -691,7 +702,7 @@ export function ExpandedTodayPlan({
                   }
                   className="h-9 rounded-[10px] bg-[#2E3BFF] px-3 text-[12px] font-semibold text-white disabled:opacity-40"
                 >
-                  Add
+                  {t.addBtn}
                 </button>
               </div>
             </div>
@@ -720,14 +731,14 @@ export function ExpandedTodayPlan({
           disabled={sendingToHevy}
           className="flex h-[54px] flex-1 items-center justify-center gap-[8px] rounded-[27px] bg-[#2E3BFF] text-[16px] font-bold text-white shadow-sm transition hover:bg-[#2530d9] disabled:opacity-50"
         >
-          <span>{sendingToHevy ? "Sending..." : "Send to Hevy"}</span>
+          <span>{sendingToHevy ? t.sending : t.sendToHevy}</span>
           <Send className="h-[18px] w-[18px]" />
         </button>
         <button
           type="button"
           onClick={onRegenerate}
           disabled={generatingPlan}
-          aria-label="Regenerate plan"
+          aria-label={t.regenerate}
           className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-[27px] bg-[#ECEEF3] text-[#0B0D17] transition hover:bg-[#dfe2ea] disabled:opacity-50"
         >
           <RefreshCw

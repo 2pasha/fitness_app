@@ -54,7 +54,8 @@ function buildDeterministicWorkoutPlan(
   routine: SplitRoutineWithExercises,
   analytics: DashboardAnalyticsPayload,
   reportsByTemplate: Map<string, ExerciseProgressionReport>,
-  userPrompt: string
+  userPrompt: string,
+  locale: "en" | "uk" = "en"
 ): CoachResponse {
   const isShortSession =
     /short|quick|30 min|40 min|45 min|hurry|fast/i.test(userPrompt);
@@ -113,8 +114,14 @@ function buildDeterministicWorkoutPlan(
     }
 
     const rationale =
-      report?.recommendationReason ||
-      `Target ${workingSetCount} working sets in the ${ex.target_rep_min}–${ex.target_rep_max} rep window @ RPE ${ex.target_rpe}.`;
+      locale === "uk"
+        ? didGraduateWeight
+          ? `Усі робочі підходи досягли верхньої межі повторень. Підвищуємо вагу до ${targetWeight} кг на ${workingSetCount} × ${targetRep}.`
+          : `Останній робочий підхід: ${
+              report?.latestSession?.topSetSummary || `${targetWeight} кг`
+            }. Залишаємо ${targetWeight} кг і цілимось у ${targetRep} повторень.`
+        : report?.recommendationReason ||
+          `Target ${workingSetCount} working sets in the ${ex.target_rep_min}–${ex.target_rep_max} rep window @ RPE ${ex.target_rpe}.`;
 
     return {
       exercise_template_id: ex.exercise_template_id,
@@ -247,8 +254,9 @@ export async function generatePreWorkoutPlan(params: {
   userMessage: string;
   analytics: DashboardAnalyticsPayload;
   routineId?: string;
+  locale?: "en" | "uk";
 }): Promise<CoachResponse> {
-  const { userMessage, analytics, routineId } = params;
+  const { userMessage, analytics, routineId, locale = "en" } = params;
   const targetRoutine =
     analytics.routines.find((r) => r.id === routineId) ||
     analytics.nextSplitRoutine ||
@@ -266,7 +274,8 @@ export async function generatePreWorkoutPlan(params: {
     targetRoutine,
     analytics,
     reportsByTemplate,
-    userMessage
+    userMessage,
+    locale
   );
 
   const cfg = getRuntimeConfig();
@@ -302,6 +311,11 @@ export async function generatePreWorkoutPlan(params: {
       ),
     };
 
+    const languageInstruction =
+      locale === "uk"
+        ? `\n7. LANGUAGE REQUIREMENT: Write "coachingReply", "workoutPlan.notes", each exercise's "notes", "progression_rationale", and "priorityBadge" in natural Ukrainian (українською мовою). Keep exercise "title" and "exercise_template_id" matching the Hevy template names so they map cleanly.`
+        : "";
+
     const systemPrompt = `You are an elite evidence-based strength & hypertrophy AI coach integrated with the user's Hevy workout app.
 The user trains using a Full Body A/B/C rotation (rotating 2-3 different Full Body sessions across the week).
 Your job is to:
@@ -316,7 +330,7 @@ Your job is to:
    - "Vertical Pull (Lats)"
    - "Arms & Core (Accessory)"
 4. Check "underworkedMusclesLast3Workouts" and "underworkedPatternsLast3Workouts". Prioritize those patterns early in the workout or include a known exercise from "availableKnownExercisesFromHistory" (using its exact exercise_template_id!) so the 3-workout cycle is completely balanced.
-5. IMPORTANT: Only use valid "exercise_template_id" values present in "scheduledBaseVariationForToday" or "availableKnownExercisesFromHistory".
+5. IMPORTANT: Only use valid "exercise_template_id" values present in "scheduledBaseVariationForToday" or "availableKnownExercisesFromHistory".${languageInstruction}
 6. Return strictly valid JSON matching this schema:
 {
   "coachingReply": "Markdown explanation analyzing their last 3 Full Body workouts, highlighting which muscle groups/patterns were under-worked, and explaining today's exercise & weight/rep targets",

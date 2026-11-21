@@ -21,8 +21,18 @@ import {
   ExpandedViewType,
   getTargetBadgeForExercise,
   GoalProgressRing,
+  LanguageToggle,
   MobileBottomTabBar,
 } from "@/components/home/shared";
+import {
+  capitalizeFirst,
+  formatTimeAgoLocalized,
+  getDateLocale,
+  translateMuscle,
+  translateTargetBadge,
+  useI18n,
+  WEEKDAY_LETTERS,
+} from "@/lib/i18n";
 import { ExpandedWeeklyGoal } from "@/components/home/ExpandedWeeklyGoal";
 import { ExpandedMuscularLoad } from "@/components/home/ExpandedMuscularLoad";
 import { ExpandedTodayPlan } from "@/components/home/ExpandedTodayPlan";
@@ -126,9 +136,11 @@ function formatTimeAgo(iso: string | null): string {
 }
 
 export default function HevyAppPage() {
+  const { locale, t } = useI18n();
   // Navigation & Expanded View state
   const [expandedView, setExpandedView] = useState<ExpandedViewType>(null);
   const desktopModalScrollRef = useRef<HTMLDivElement | null>(null);
+  const prevLocaleRef = useRef<string>(locale);
 
   useEffect(() => {
     if (expandedView !== null) {
@@ -230,37 +242,50 @@ export default function HevyAppPage() {
     }
   }, []);
 
-  const handleGeneratePlan = useCallback(async (customPrompt?: string) => {
-    try {
-      setGeneratingPlan(true);
-      setSendResult(null);
+  const handleGeneratePlan = useCallback(
+    async (customPrompt?: string, overrideLocale?: "en" | "uk") => {
+      try {
+        setGeneratingPlan(true);
+        setSendResult(null);
 
-      const res = await fetch("/api/coach", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message:
-            customPrompt ||
-            "What should I do today based on my last 3 workouts?",
-        }),
-      });
+        const activeLocale = overrideLocale ?? locale;
+        const res = await fetch("/api/coach", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message:
+              customPrompt ||
+              "What should I do today based on my last 3 workouts?",
+            locale: activeLocale,
+          }),
+        });
 
-      const data = await res.json();
-      if (res.ok && data.workoutPlan) {
-        setCoachResponse(data);
-        setEditablePlan(data.workoutPlan);
+        const data = await res.json();
+        if (res.ok && data.workoutPlan) {
+          setCoachResponse(data);
+          setEditablePlan(data.workoutPlan);
+        }
+      } catch (err) {
+        console.error("Failed to generate plan:", err);
+      } finally {
+        setGeneratingPlan(false);
       }
-    } catch (err) {
-      console.error("Failed to generate plan:", err);
-    } finally {
-      setGeneratingPlan(false);
-    }
-  }, []);
+    },
+    [locale]
+  );
 
   useEffect(() => {
     loadAllData(false);
     handleGeneratePlan();
-  }, [loadAllData, handleGeneratePlan]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (prevLocaleRef.current !== locale) {
+      prevLocaleRef.current = locale;
+      handleGeneratePlan(undefined, locale);
+    }
+  }, [locale, handleGeneratePlan]);
 
   const handleUpdateWeeklyGoal = useCallback(async (newGoal: number) => {
     const clamped = Math.max(1, Math.min(14, newGoal));
@@ -298,7 +323,7 @@ export default function HevyAppPage() {
 
       setSendResult({
         type: "success",
-        message: `Sent "${data.title}" (${data.exercisesCount} exercises · ${data.totalSets} sets) to Hevy!`,
+        message: t.sentSuccess(data.title, data.exercisesCount, data.totalSets),
       });
     } catch (err: unknown) {
       setSendResult({
@@ -358,8 +383,11 @@ export default function HevyAppPage() {
 
   // Reference today date (aligns with real system clock)
   const today = useMemo(() => new Date(), []);
-  const weekdayTitle = today.toLocaleDateString("en-US", { weekday: "long" });
-  const monthDayStr = today.toLocaleDateString("en-US", {
+  const dateLocale = getDateLocale(locale);
+  const weekdayTitle = capitalizeFirst(
+    today.toLocaleDateString(dateLocale, { weekday: "long" })
+  );
+  const monthDayStr = today.toLocaleDateString(dateLocale, {
     month: "long",
     day: "numeric",
   });
@@ -371,7 +399,7 @@ export default function HevyAppPage() {
     startOfWeek.setHours(0, 0, 0, 0);
     startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
 
-    const letters = ["S", "M", "T", "W", "T", "F", "S"];
+    const letters = WEEKDAY_LETTERS[locale];
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(startOfWeek);
       d.setDate(startOfWeek.getDate() + i);
@@ -396,7 +424,7 @@ export default function HevyAppPage() {
         workout: workoutOnDay || null,
       };
     });
-  }, [today, workouts]);
+  }, [today, workouts, locale]);
 
   const completedSessionsThisWeek = useMemo(() => {
     const startOfWeek = new Date(today);
@@ -460,7 +488,10 @@ export default function HevyAppPage() {
   // Coach note concise text
   const whyThisPlanNote = useMemo(() => {
     if (!editablePlan || editablePlan.exercises.length === 0) {
-      return "Analyzing your last 3 sessions to calculate progressive overload targets and movement pattern balance.";
+      return t.defaultWhyPlan;
+    }
+    if (locale === "uk" && editablePlan.notes) {
+      return editablePlan.notes;
     }
     const plateauEx = editablePlan.exercises.find((e) =>
       e.progression_rationale.toLowerCase().includes("held")
@@ -471,7 +502,7 @@ export default function HevyAppPage() {
         e.title.toLowerCase().includes("tricep") ||
         e.title.toLowerCase().includes("pushdown")
     );
-    if (plateauEx) {
+    if (plateauEx && locale === "en") {
       const cleanName = cleanExerciseName(plateauEx.title);
       const w = plateauEx.sets.find((s) => s.type !== "warmup")?.weight_kg ?? 40;
       const r =
@@ -483,11 +514,8 @@ export default function HevyAppPage() {
         : "";
       return `${cleanName} has held at ${w} kg for 3 sessions, so keep the weight and chase ${r} reps.${catchupSentence}`;
     }
-    return (
-      editablePlan.exercises[0]?.progression_rationale ||
-      "Built from your last 3 sessions to balance all 7 movement patterns and push progressive overload."
-    );
-  }, [editablePlan]);
+    return editablePlan.exercises[0]?.progression_rationale || t.defaultWhyPlanBuilt;
+  }, [editablePlan, locale, t]);
 
   const latestWorkout = workouts[0] || null;
   const activeSelectedWorkout =
@@ -496,7 +524,7 @@ export default function HevyAppPage() {
   const formatLastSessionTitle = (w: DetailedWorkoutView) => {
     try {
       const d = new Date(w.start_time);
-      const dayStr = d.toLocaleDateString("en-US", {
+      const dayStr = d.toLocaleDateString(dateLocale, {
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -621,16 +649,17 @@ export default function HevyAppPage() {
                 {weekdayTitle}
               </h1>
               <p className="text-[14px] font-normal text-[#5E6275]">
-                {monthDayStr} · Week {weekNum}
+                {monthDayStr} · {t.weekPrefix} {weekNum}
               </p>
             </div>
 
             <div className="flex items-center gap-[8px]">
+              <LanguageToggle compact />
               <button
                 type="button"
                 onClick={() => loadAllData(true)}
                 disabled={syncing}
-                aria-label="Sync with Hevy"
+                aria-label={t.syncWithHevyAria}
                 className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] shadow-2xs transition active:scale-95 disabled:opacity-50"
               >
                 <RefreshCw
@@ -641,7 +670,7 @@ export default function HevyAppPage() {
               </button>
               <button
                 type="button"
-                aria-label="Account"
+                aria-label={t.accountAria}
                 className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] shadow-2xs transition active:scale-95"
               >
                 <User className="h-[18px] w-[18px]" />
@@ -705,19 +734,17 @@ export default function HevyAppPage() {
             />
             <div className="flex flex-1 flex-col gap-[6px]">
               <span className="text-[13px] font-normal text-[#A9ADC2]">
-                Weekly goal
+                {t.weeklyGoal}
               </span>
               <p className="text-[22px] font-bold leading-tight tracking-[-0.5px] text-white">
                 {sessionsRemaining === 0
-                  ? "Goal complete!"
-                  : `${sessionsRemaining} session${
-                      sessionsRemaining === 1 ? "" : "s"
-                    } to go`}
+                  ? t.goalComplete
+                  : t.sessionsToGo(sessionsRemaining)}
               </p>
               <p className="text-[13px] font-normal leading-snug text-[#A9ADC2]">
                 {sessionsRemaining <= 1
-                  ? `Today's ${plannedTitleClean} closes your week.`
-                  : `Today's ${plannedTitleClean} keeps you on pace.`}
+                  ? t.todayClosesWeek(plannedTitleClean)
+                  : t.todayKeepsPace(plannedTitleClean)}
               </p>
             </div>
           </div>
@@ -735,10 +762,10 @@ export default function HevyAppPage() {
           >
             <div className="flex items-center justify-between pb-[6px]">
               <span className="text-[17px] font-semibold text-[#0B0D17]">
-                Muscular load
+                {t.muscularLoad}
               </span>
               <span className="text-[12px] font-normal text-[#5E6275]">
-                Sets · last 3 sessions
+                {t.setsLast3}
               </span>
             </div>
 
@@ -757,8 +784,8 @@ export default function HevyAppPage() {
                   key={row.name}
                   className="flex items-center gap-[12px] py-[8px]"
                 >
-                  <span className="w-[78px] shrink-0 text-[14px] font-medium text-[#0B0D17]">
-                    {row.name}
+                  <span className="w-[86px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
+                    {translateMuscle(row.name, locale)}
                   </span>
                   <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
                     <div
@@ -781,7 +808,7 @@ export default function HevyAppPage() {
                         row.isOptimal ? "text-[#0E6A37]" : "text-[#B2430A]"
                       }`}
                     >
-                      {row.isOptimal ? "OPTIMAL" : "LOW"}
+                      {row.isOptimal ? t.optimalBadge : t.lowBadge}
                     </span>
                   </div>
                 </div>
@@ -797,7 +824,7 @@ export default function HevyAppPage() {
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-[4px]">
                 <span className="text-[13px] font-normal text-[#C9CCFF]">
-                  Today&apos;s AI plan
+                  {t.todaysAiPlan}
                 </span>
                 <h2 className="text-[28px] font-bold leading-none tracking-[-0.5px] text-white">
                   {plannedTitleClean}
@@ -805,7 +832,7 @@ export default function HevyAppPage() {
               </div>
               <div className="rounded-full bg-white/15 px-[10px] py-[6px]">
                 <span className="text-[12px] font-semibold text-white">
-                  ~{plannedDurationMin} min
+                  ~{plannedDurationMin} {t.min}
                 </span>
               </div>
             </div>
@@ -839,14 +866,14 @@ export default function HevyAppPage() {
                         {cleanExerciseName(ex.title)}
                       </span>
                       <span className="text-[14px] font-normal text-[#C9CCFF]">
-                        {count}×{reps} · {weight} kg
+                        {count}×{reps} · {weight} {t.kg}
                       </span>
                     </div>
                   );
                 })}
                 {editablePlan.exercises.length > 4 && (
                   <span className="text-[13px] font-normal text-[#C9CCFF]">
-                    +{editablePlan.exercises.length - 4} more lifts
+                    {t.moreLifts(editablePlan.exercises.length - 4)}
                   </span>
                 )}
               </div>
@@ -875,13 +902,13 @@ export default function HevyAppPage() {
                 disabled={sendingToHevy || !editablePlan}
                 className="flex h-[52px] flex-1 items-center justify-center gap-[8px] rounded-[26px] bg-white text-[16px] font-bold text-[#2E3BFF] transition hover:bg-white/95 active:scale-[0.99] disabled:opacity-60"
               >
-                <span>{sendingToHevy ? "Sending..." : "Send to Hevy"}</span>
+                <span>{sendingToHevy ? t.sending : t.sendToHevy}</span>
                 <Send className="h-[18px] w-[18px]" />
               </button>
               <button
                 type="button"
                 onClick={() => setExpandedView("today_plan")}
-                aria-label="Edit today's plan"
+                aria-label={t.editPlan}
                 className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-[26px] border border-white/35 text-white transition hover:bg-white/10"
               >
                 <SlidersHorizontal className="h-[18px] w-[18px]" />
@@ -919,18 +946,19 @@ export default function HevyAppPage() {
                   {formatLastSessionTitle(latestWorkout)}
                 </span>
                 <span className="text-[13px] font-normal text-[#5E6275]">
-                  {Math.round(latestWorkout.duration_seconds / 60)} min ·{" "}
-                  {latestWorkout.total_working_sets} sets ·{" "}
-                  {(latestWorkout.total_volume_kg / 1000).toFixed(1)} t moved
+                  {Math.round(latestWorkout.duration_seconds / 60)} {t.min} ·{" "}
+                  {t.setsCount(latestWorkout.total_working_sets)} ·{" "}
+                  {(latestWorkout.total_volume_kg / 1000).toFixed(1)} {t.t}{" "}
+                  {t.movedSuffix}
                 </span>
               </div>
             ) : (
               <div className="flex flex-1 flex-col gap-[2px]">
                 <span className="text-[15px] font-semibold text-[#0B0D17]">
-                  No sessions synced yet
+                  {t.noSessionsYet}
                 </span>
                 <span className="text-[13px] font-normal text-[#5E6275]">
-                  Tap refresh above to sync from Hevy
+                  {t.tapRefreshToSync}
                 </span>
               </div>
             )}
@@ -966,24 +994,26 @@ export default function HevyAppPage() {
             <CompactNavPill onHomeClick={() => setExpandedView(null)} />
           </div>
 
-          {/* Right: Sync Pill + Avatar */}
+          {/* Right: Language Toggle + Sync Pill + Avatar */}
           <div className="flex flex-1 items-center justify-end gap-[10px]">
+            <LanguageToggle />
+
             <div className="flex h-[44px] items-center gap-[10px] rounded-[22px] bg-white pr-[8px] pl-[16px]">
               <span className="h-[8px] w-[8px] shrink-0 rounded-full bg-[#3DDC84]" />
               <div className="flex flex-col leading-tight">
                 <span className="text-[13px] font-semibold text-[#0B0D17]">
-                  Synced with Hevy
+                  {t.syncedWithHevy}
                 </span>
                 <span className="text-[11px] font-normal text-[#5E6275]">
-                  {dbStats.workoutsInDb} workouts ·{" "}
-                  {formatTimeAgo(dbStats.lastSyncAt)}
+                  {t.workoutsCount(dbStats.workoutsInDb)} ·{" "}
+                  {formatTimeAgoLocalized(dbStats.lastSyncAt, locale)}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => loadAllData(true)}
                 disabled={syncing}
-                aria-label="Sync with Hevy"
+                aria-label={t.syncWithHevyAria}
                 className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[15px] bg-[#ECEEF3] text-[#0B0D17] transition hover:bg-[#dfe2ea] active:scale-95 disabled:opacity-50"
               >
                 <RefreshCw
@@ -996,7 +1026,7 @@ export default function HevyAppPage() {
 
             <button
               type="button"
-              aria-label="Account"
+              aria-label={t.accountAria}
               className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[22px] bg-white text-[#0B0D17] transition hover:bg-white/80 active:scale-95"
             >
               <User className="h-[18px] w-[18px]" />
@@ -1013,7 +1043,7 @@ export default function HevyAppPage() {
                 {weekdayTitle}
               </h1>
               <p className="text-[15px] font-normal text-[#5E6275]">
-                {monthDayStr} · Week {weekNum}
+                {monthDayStr} · {t.weekPrefix} {weekNum}
               </p>
             </div>
 
@@ -1065,20 +1095,20 @@ export default function HevyAppPage() {
                 <div className="flex items-start justify-between gap-6">
                   <div className="flex flex-col gap-[6px]">
                     <span className="text-[14px] font-normal text-[#C9CCFF]">
-                      Today&apos;s AI plan
+                      {t.todaysAiPlan}
                     </span>
                     <h2 className="text-[44px] font-bold leading-none tracking-[-1.2px] text-white">
                       {plannedTitleClean}
                     </h2>
                     <div className="flex flex-wrap items-center gap-[8px] pt-[4px]">
                       <span className="rounded-full bg-white/15 px-[12px] py-[6px] text-[13px] font-semibold text-white">
-                        {editablePlan?.exercises.length ?? 0} exercises
+                        {t.exercisesCount(editablePlan?.exercises.length ?? 0)}
                       </span>
                       <span className="rounded-full bg-white/15 px-[12px] py-[6px] text-[13px] font-semibold text-white">
-                        {plannedTotalSets} sets
+                        {t.setsCount(plannedTotalSets)}
                       </span>
                       <span className="rounded-full bg-white/15 px-[12px] py-[6px] text-[13px] font-semibold text-white">
-                        ~{plannedDurationMin} min
+                        ~{plannedDurationMin} {t.min}
                       </span>
                     </div>
                   </div>
@@ -1088,7 +1118,7 @@ export default function HevyAppPage() {
                     <div className="flex items-center gap-[6px]">
                       <Sparkles className="h-[14px] w-[14px] text-[#B9F2D2]" />
                       <span className="text-[12px] font-semibold text-[#B9F2D2]">
-                        Why this plan
+                        {t.whyThisPlan}
                       </span>
                     </div>
                     <p className="text-[13px] font-normal leading-snug text-white">
@@ -1102,10 +1132,10 @@ export default function HevyAppPage() {
                   {/* Table Header */}
                   <div className="flex items-center gap-[16px] border-b border-white/20 pb-[10px] text-[12px] font-medium text-[#C9CCFF]">
                     <span className="w-[24px]">#</span>
-                    <span className="flex-1">Exercise</span>
-                    <span className="w-[110px]">Sets × reps</span>
-                    <span className="w-[80px]">Weight</span>
-                    <span className="w-[96px] text-right">Target</span>
+                    <span className="flex-1">{t.tableExercise}</span>
+                    <span className="w-[110px]">{t.tableSetsReps}</span>
+                    <span className="w-[80px]">{t.tableWeight}</span>
+                    <span className="w-[96px] text-right">{t.tableTarget}</span>
                   </div>
 
                   {generatingPlan && !editablePlan ? (
@@ -1163,14 +1193,14 @@ export default function HevyAppPage() {
                               {cleanExerciseName(ex.title)}
                             </span>
                             <span className="text-[13px] font-normal text-[#C9CCFF]">
-                              {muscleGroup}
+                              {translateMuscle(muscleGroup, locale)}
                             </span>
                           </div>
                           <span className="w-[110px] text-[15px] font-medium text-white">
                             {setCount} × {repVal}
                           </span>
                           <span className="w-[80px] text-[15px] font-medium text-white">
-                            {weightVal} kg
+                            {weightVal} {t.kg}
                           </span>
                           <div className="flex w-[96px] justify-end">
                             <span
@@ -1182,7 +1212,7 @@ export default function HevyAppPage() {
                                   : "bg-white/15 text-white"
                               }`}
                             >
-                              {badge.label}
+                              {translateTargetBadge(badge.label, locale)}
                             </span>
                           </div>
                         </div>
@@ -1212,7 +1242,7 @@ export default function HevyAppPage() {
                     className="flex h-[52px] items-center justify-center gap-[8px] rounded-[26px] bg-white px-[28px] text-[16px] font-bold text-[#2E3BFF] transition hover:bg-white/90 disabled:opacity-60"
                   >
                     <span>
-                      {sendingToHevy ? "Sending..." : "Send to Hevy"}
+                      {sendingToHevy ? t.sending : t.sendToHevy}
                     </span>
                     <Send className="h-[18px] w-[18px]" />
                   </button>
@@ -1223,7 +1253,7 @@ export default function HevyAppPage() {
                     className="flex h-[52px] items-center justify-center gap-[8px] rounded-[26px] border border-white/35 px-[20px] text-[15px] font-medium text-white transition hover:bg-white/10"
                   >
                     <SlidersHorizontal className="h-[16px] w-[16px]" />
-                    <span>Edit plan</span>
+                    <span>{t.editPlan}</span>
                   </button>
 
                   <button
@@ -1237,7 +1267,7 @@ export default function HevyAppPage() {
                         generatingPlan ? "animate-spin" : ""
                       }`}
                     />
-                    <span>Regenerate</span>
+                    <span>{t.regenerate}</span>
                   </button>
                 </div>
               </div>
@@ -1264,14 +1294,14 @@ export default function HevyAppPage() {
 
                 <div className="flex flex-1 flex-col gap-[2px]">
                   <span className="text-[12px] font-normal text-[#5E6275]">
-                    Last session
+                    {t.lastSession}
                   </span>
                   <span className="text-[17px] font-semibold text-[#0B0D17]">
                     {latestWorkout
                       ? formatLastSessionTitle(latestWorkout)
                       : loading
-                      ? "Loading last session..."
-                      : "No sessions synced yet"}
+                      ? t.loadingLastSession
+                      : t.noSessionsYet}
                   </span>
                 </div>
 
@@ -1279,10 +1309,10 @@ export default function HevyAppPage() {
                   <>
                     <div className="flex flex-col border-l border-[#E2E4EA] pl-[16px]">
                       <span className="text-[18px] font-bold text-[#0B0D17]">
-                        {Math.round(latestWorkout.duration_seconds / 60)} min
+                        {Math.round(latestWorkout.duration_seconds / 60)} {t.min}
                       </span>
                       <span className="text-[12px] font-normal text-[#5E6275]">
-                        Duration
+                        {t.durationLabel}
                       </span>
                     </div>
 
@@ -1291,7 +1321,7 @@ export default function HevyAppPage() {
                         {latestWorkout.exercises.length}
                       </span>
                       <span className="text-[12px] font-normal text-[#5E6275]">
-                        Exercises
+                        {t.exercisesLabel}
                       </span>
                     </div>
 
@@ -1300,7 +1330,7 @@ export default function HevyAppPage() {
                         {latestWorkout.total_working_sets}
                       </span>
                       <span className="text-[12px] font-normal text-[#5E6275]">
-                        Sets
+                        {t.setsLabel}
                       </span>
                     </div>
 
@@ -1309,10 +1339,10 @@ export default function HevyAppPage() {
                         {Math.round(
                           latestWorkout.total_volume_kg
                         ).toLocaleString()}{" "}
-                        kg
+                        {t.kg}
                       </span>
                       <span className="text-[12px] font-normal text-[#5E6275]">
-                        Volume
+                        {t.volumeLabel}
                       </span>
                     </div>
                   </>
@@ -1343,19 +1373,17 @@ export default function HevyAppPage() {
                 />
                 <div className="flex flex-1 flex-col gap-[6px]">
                   <span className="text-[13px] font-normal text-[#A9ADC2]">
-                    Weekly goal
+                    {t.weeklyGoal}
                   </span>
                   <p className="text-[22px] font-bold leading-tight tracking-[-0.5px] text-white">
                     {sessionsRemaining === 0
-                      ? "Goal complete!"
-                      : `${sessionsRemaining} session${
-                          sessionsRemaining === 1 ? "" : "s"
-                        } to go`}
+                      ? t.goalComplete
+                      : t.sessionsToGo(sessionsRemaining)}
                   </p>
                   <p className="text-[13px] font-normal leading-snug text-[#A9ADC2]">
                     {sessionsRemaining <= 1
-                      ? `Today's ${plannedTitleClean} closes your week.`
-                      : `Today's ${plannedTitleClean} keeps you on pace.`}
+                      ? t.todayClosesWeek(plannedTitleClean)
+                      : t.todayKeepsPace(plannedTitleClean)}
                   </p>
                 </div>
               </div>
@@ -1373,10 +1401,10 @@ export default function HevyAppPage() {
               >
                 <div className="flex items-center justify-between pb-[8px]">
                   <span className="text-[18px] font-semibold text-[#0B0D17]">
-                    Muscular load
+                    {t.muscularLoad}
                   </span>
                   <span className="text-[12px] font-normal text-[#5E6275]">
-                    Sets · last 3 sessions
+                    {t.setsLast3}
                   </span>
                 </div>
 
@@ -1395,8 +1423,8 @@ export default function HevyAppPage() {
                       key={row.name}
                       className="flex items-center gap-[12px] py-[8px]"
                     >
-                      <span className="w-[92px] shrink-0 text-[14px] font-medium text-[#0B0D17]">
-                        {row.name}
+                      <span className="w-[100px] shrink-0 truncate text-[14px] font-medium text-[#0B0D17]">
+                        {translateMuscle(row.name, locale)}
                       </span>
                       <div className="h-[8px] flex-1 overflow-hidden rounded-[4px] bg-[#ECEEF3]">
                         <div
@@ -1419,7 +1447,7 @@ export default function HevyAppPage() {
                             row.isOptimal ? "text-[#0E6A37]" : "text-[#B2430A]"
                           }`}
                         >
-                          {row.isOptimal ? "OPTIMAL" : "LOW"}
+                          {row.isOptimal ? t.optimalBadge : t.lowBadge}
                         </span>
                       </div>
                     </div>

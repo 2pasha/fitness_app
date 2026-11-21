@@ -11,12 +11,14 @@ export async function POST(req: NextRequest) {
         : "What should I do today?";
     const routineId =
       typeof body.routineId === "string" ? body.routineId : undefined;
+    const locale = body.locale === "uk" ? "uk" : "en";
 
     const analytics = await buildDashboardAnalytics();
     const result = await generatePreWorkoutPlan({
       userMessage,
       analytics,
       routineId,
+      locale,
     });
 
     return NextResponse.json(result);

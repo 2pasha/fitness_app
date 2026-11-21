@@ -8,6 +8,13 @@ import {
   cleanExerciseName,
   extractEquipmentFromTitle,
 } from "./shared";
+import {
+  capitalizeFirst,
+  getDateLocale,
+  Locale,
+  translateEquipment,
+  useI18n,
+} from "@/lib/i18n";
 
 export interface ExpandedLastSessionProps {
   workout: DetailedWorkoutView | null;
@@ -33,8 +40,9 @@ function inferEquipmentLabel(rawTitle: string): string {
 
 function formatSessionDateTimeRange(
   startTimeStr: string,
-  endTimeStr?: string,
-  durationSeconds?: number
+  endTimeStr: string | undefined,
+  durationSeconds: number | undefined,
+  locale: Locale
 ): string {
   const start = new Date(startTimeStr);
   if (Number.isNaN(start.getTime())) return startTimeStr;
@@ -43,31 +51,38 @@ function formatSessionDateTimeRange(
     ? new Date(endTimeStr)
     : new Date(start.getTime() + (durationSeconds || 3120) * 1000);
 
-  const datePart = start.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
+  const dateLocale = getDateLocale(locale);
+  const datePart = capitalizeFirst(
+    start.toLocaleDateString(dateLocale, {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    })
+  );
 
-  const startHourMin = start.toLocaleTimeString("en-US", {
+  const hour12 = locale !== "uk";
+  const startHourMin = start.toLocaleTimeString(dateLocale, {
     hour: "numeric",
     minute: "2-digit",
-    hour12: true,
+    hour12,
   });
-  const endHourMin = end.toLocaleTimeString("en-US", {
+  const endHourMin = end.toLocaleTimeString(dateLocale, {
     hour: "numeric",
     minute: "2-digit",
-    hour12: true,
+    hour12,
   });
 
-  const startMeridiem = startHourMin.split(" ")[1];
-  const endMeridiem = endHourMin.split(" ")[1];
-  const startClean =
-    startMeridiem === endMeridiem
-      ? startHourMin.replace(/\s?(AM|PM)$/i, "")
-      : startHourMin;
+  if (hour12) {
+    const startMeridiem = startHourMin.split(" ")[1];
+    const endMeridiem = endHourMin.split(" ")[1];
+    const startClean =
+      startMeridiem === endMeridiem
+        ? startHourMin.replace(/\s?(AM|PM)$/i, "")
+        : startHourMin;
+    return `${datePart} · ${startClean} – ${endHourMin}`;
+  }
 
-  return `${datePart} · ${startClean} – ${endHourMin}`;
+  return `${datePart} · ${startHourMin} – ${endHourMin}`;
 }
 
 export function ExpandedLastSession({
@@ -75,18 +90,20 @@ export function ExpandedLastSession({
   analytics,
   onBack,
 }: ExpandedLastSessionProps) {
+  const { locale, t } = useI18n();
+
   if (!workout) {
     return (
       <div className="flex min-h-full flex-col items-center justify-center bg-[#ECEEF3] p-8 text-center">
         <p className="text-[15px] font-semibold text-[#0B0D17]">
-          No recent session available.
+          {t.noRecentSession}
         </p>
         <button
           type="button"
           onClick={onBack}
           className="mt-4 rounded-full bg-white px-4 py-2 text-[13px] font-semibold text-[#0B0D17]"
         >
-          Back
+          {t.backBtn}
         </button>
       </div>
     );
@@ -97,7 +114,8 @@ export function ExpandedLastSession({
   const subtitle = formatSessionDateTimeRange(
     workout.start_time,
     workout.end_time,
-    workout.duration_seconds
+    workout.duration_seconds,
+    locale
   );
 
   // Compute progression highlights from analytics?.exerciseReports
@@ -123,16 +141,14 @@ export function ExpandedLastSession({
 
   const highlightsTitle =
     strongerCount > 0
-      ? `${strongerCount} lift${strongerCount === 1 ? "" : "s"} got stronger`
-      : `${workout.exercises.length} lifts completed`;
+      ? t.liftsGotStronger(strongerCount)
+      : t.liftsCompleted(workout.exercises.length);
 
   const highlightsText = topGainer
-    ? `${topGainer.title} led the way at +${topGainer.e1rmChangePct}% e1RM.${
-        dippedLift
-          ? ` ${dippedLift.title} dipped slightly, worth watching next session.`
-          : " Consistent progressive overload across your working sets."
+    ? `${t.ledTheWay(topGainer.title, topGainer.e1rmChangePct)}${
+        dippedLift ? t.dippedSlightly(dippedLift.title) : t.consistentOverload
       }`
-    : "Solid baseline session logged. Keep pushing reps or load on your primary movements next workout.";
+    : t.solidBaseline;
 
   return (
     <div className="flex min-h-full flex-col bg-[#ECEEF3] pb-[12px]">
@@ -142,19 +158,19 @@ export function ExpandedLastSession({
           <button
             type="button"
             onClick={onBack}
-            aria-label="Back"
+            aria-label={t.backBtn}
             className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] shadow-xs transition hover:bg-white/80"
           >
             <ChevronLeft className="h-[18px] w-[18px]" />
           </button>
           <span className="text-[17px] font-semibold text-[#0B0D17]">
-            Last session
+            {t.lastSession}
           </span>
           <a
             href={hevyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Open in Hevy"
+            aria-label={t.openInHevy}
             className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] shadow-xs transition hover:bg-white/80"
           >
             <ExternalLink className="h-[18px] w-[18px]" />
@@ -178,14 +194,14 @@ export function ExpandedLastSession({
             {/* Duration card */}
             <div className="flex flex-col gap-[2px] rounded-[24px] bg-[#0B0D17] p-[18px]">
               <span className="text-[13px] font-normal text-[#A9ADC2]">
-                Duration
+                {t.durationLabel}
               </span>
               <div className="flex items-baseline gap-[4px]">
                 <span className="text-[30px] font-bold leading-none tracking-[-1px] text-white">
                   {durationMinutes}
                 </span>
                 <span className="text-[14px] font-normal text-[#A9ADC2]">
-                  min
+                  {t.min}
                 </span>
               </div>
             </div>
@@ -193,14 +209,14 @@ export function ExpandedLastSession({
             {/* Volume card */}
             <div className="flex flex-col gap-[2px] rounded-[24px] bg-[#FFC6A3] p-[18px]">
               <span className="text-[13px] font-normal text-[#6B3A1C]">
-                Volume
+                {t.volumeLabel}
               </span>
               <div className="flex items-baseline gap-[4px]">
                 <span className="text-[30px] font-bold leading-none tracking-[-1px] text-[#0B0D17]">
                   {Math.round(workout.total_volume_kg).toLocaleString()}
                 </span>
                 <span className="text-[14px] font-normal text-[#6B3A1C]">
-                  kg
+                  {t.kg}
                 </span>
               </div>
             </div>
@@ -211,7 +227,7 @@ export function ExpandedLastSession({
             {/* Working sets card */}
             <div className="flex flex-col gap-[2px] rounded-[24px] bg-white p-[18px]">
               <span className="text-[13px] font-normal text-[#5E6275]">
-                Working sets
+                {t.workingSetsLabel}
               </span>
               <div className="flex items-baseline gap-[4px]">
                 <span className="text-[30px] font-bold leading-none tracking-[-1px] text-[#0B0D17]">
@@ -223,7 +239,7 @@ export function ExpandedLastSession({
             {/* Exercises card */}
             <div className="flex flex-col gap-[2px] rounded-[24px] bg-white p-[18px]">
               <span className="text-[13px] font-normal text-[#5E6275]">
-                Exercises
+                {t.exercisesLabel}
               </span>
               <div className="flex items-baseline gap-[4px]">
                 <span className="text-[30px] font-bold leading-none tracking-[-1px] text-[#0B0D17]">
@@ -250,7 +266,7 @@ export function ExpandedLastSession({
         {/* Exercises section */}
         <div className="flex flex-col gap-[10px]">
           <h2 className="text-[17px] font-semibold text-[#0B0D17]">
-            Exercises
+            {t.exercisesLabel}
           </h2>
 
           {workout.exercises.map((ex, idx) => {
@@ -258,7 +274,10 @@ export function ExpandedLastSession({
               (r) => r.exerciseTemplateId === ex.exercise_template_id
             );
             const e1rmChangePct = report?.e1rmChangePct ?? 0;
-            const equipmentLabel = inferEquipmentLabel(ex.title);
+            const equipmentLabel = translateEquipment(
+              inferEquipmentLabel(ex.title),
+              locale
+            );
             const bestE1rmFormatted =
               Math.round((ex.best_e1rm_kg || 0) * 10) / 10;
 
@@ -281,14 +300,14 @@ export function ExpandedLastSession({
                     </span>
                     <span className="truncate text-[12px] font-normal text-[#5E6275]">
                       {equipmentLabel} ·{" "}
-                      {Math.round(ex.exercise_volume_kg).toLocaleString()} kg
-                      volume
+                      {Math.round(ex.exercise_volume_kg).toLocaleString()} {t.kg}{" "}
+                      {t.volumeSuffix}
                     </span>
                   </div>
 
                   <div className="flex shrink-0 flex-col items-end">
                     <span className="text-[15px] font-bold text-[#0B0D17]">
-                      {bestE1rmFormatted} kg
+                      {bestE1rmFormatted} {t.kg}
                     </span>
                     {e1rmChangePct > 0 ? (
                       <span className="text-[11px] font-semibold text-[#0E8A45]">
@@ -300,7 +319,7 @@ export function ExpandedLastSession({
                       </span>
                     ) : (
                       <span className="text-[11px] font-semibold text-[#5E6275]">
-                        e1RM Flat
+                        {t.e1rmFlat}
                       </span>
                     )}
                   </div>
@@ -331,7 +350,7 @@ export function ExpandedLastSession({
                               : "text-[#0B0D17]"
                           }`}
                         >
-                          {w} kg
+                          {w} {t.kg}
                         </span>
                         <span className="text-[12px] font-normal text-[#5E6275]">
                           × {s.reps ?? 0}
@@ -352,7 +371,7 @@ export function ExpandedLastSession({
           rel="noopener noreferrer"
           className="flex h-[52px] w-full items-center justify-center gap-[8px] rounded-[26px] border border-[#B9BDCB] text-[15px] font-semibold text-[#0B0D17] transition hover:bg-white/60"
         >
-          <span>Open in Hevy</span>
+          <span>{t.openInHevy}</span>
           <ExternalLink className="h-[16px] w-[16px]" />
         </a>
       </div>

@@ -16,6 +16,7 @@ import {
   GoalProgressRing,
   MobileBottomTabBar,
 } from "./shared";
+import { MONTH_SHORT, useI18n, WEEKDAY_SHORT_UPPER } from "@/lib/i18n";
 
 export interface ExpandedWeeklyGoalProps {
   workouts: DetailedWorkoutView[];
@@ -78,6 +79,7 @@ export function ExpandedWeeklyGoal({
   onOpenPlan,
   onSelectWorkout,
 }: ExpandedWeeklyGoalProps) {
+  const { locale, t } = useI18n();
   const goalSettingRef = useRef<HTMLDivElement | null>(null);
 
   const handleScrollToSettings = () => {
@@ -125,8 +127,10 @@ export function ExpandedWeeklyGoal({
     const currentWeekEnd = new Date(currentWeekStart);
     currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
 
-    const startMonth = MONTH_NAMES[currentWeekStart.getMonth()];
-    const endMonth = MONTH_NAMES[currentWeekEnd.getMonth()];
+    const monthNames = MONTH_SHORT[locale];
+    const weekdayLabels = WEEKDAY_SHORT_UPPER[locale];
+    const startMonth = monthNames[currentWeekStart.getMonth()];
+    const endMonth = monthNames[currentWeekEnd.getMonth()];
     const rangeStr =
       startMonth === endMonth
         ? `${startMonth} ${currentWeekStart.getDate()} – ${currentWeekEnd.getDate()}`
@@ -138,10 +142,10 @@ export function ExpandedWeeklyGoal({
     );
     const endsText =
       daysLeft === 0
-        ? "ends tonight"
+        ? t.endsTonight
         : daysLeft === 1
-          ? "ends tomorrow"
-          : `ends in ${daysLeft} days`;
+          ? t.endsTomorrow
+          : t.endsInDays(daysLeft);
 
     // Build 7 days (Sunday .. Saturday)
     let latestLoggedDayIndex = -1;
@@ -158,7 +162,7 @@ export function ExpandedWeeklyGoal({
 
       return {
         index: idx,
-        weekday: WEEKDAY_LABELS[idx],
+        weekday: weekdayLabels[idx],
         dayNumber: dayDate.getDate(),
         date: dayDate,
         isToday: isSameCalendarDay(dayDate, refToday),
@@ -233,13 +237,13 @@ export function ExpandedWeeklyGoal({
       recentFiveWeeks: fiveWeeks,
       avgPerWeek: average,
     };
-  }, [workouts]);
+  }, [workouts, locale, t]);
 
   const remainingSessions = Math.max(0, weeklyGoal - completedThisWeek);
   const headlineText =
     remainingSessions === 0
-      ? "Weekly goal reached!"
-      : `${remainingSessions} session${remainingSessions === 1 ? "" : "s"} to go`;
+      ? t.weeklyGoalReached
+      : t.sessionsToGo(remainingSessions);
 
   const displayRoutineTitle = cleanRoutineTitle(plannedRoutineTitle);
 
@@ -268,12 +272,12 @@ export function ExpandedWeeklyGoal({
               <ChevronLeft className="h-[20px] w-[20px]" strokeWidth={2.2} />
             </button>
 
-            <h1 className="text-[17px] font-semibold text-[#0B0D17]">Weekly goal</h1>
+            <h1 className="text-[17px] font-semibold text-[#0B0D17]">{t.weeklyGoal}</h1>
 
             <button
               type="button"
               onClick={handleScrollToSettings}
-              aria-label="Goal settings"
+              aria-label={t.sessionsPerWeek}
               className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white text-[#0B0D17] transition hover:bg-white/80 active:scale-95"
             >
               <Settings2 className="h-[18px] w-[18px]" strokeWidth={2.1} />
@@ -297,7 +301,7 @@ export function ExpandedWeeklyGoal({
                 {headlineText}
               </div>
               <div className="text-[13px] font-normal text-[#A9ADC2]">
-                Week {isoWeekNumber} · {weekRangeStr} · {endsLabel}
+                {t.weekPrefix} {isoWeekNumber} · {weekRangeStr} · {endsLabel}
               </div>
             </div>
 
@@ -307,7 +311,7 @@ export function ExpandedWeeklyGoal({
               className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[24px] bg-[#B9F2D2] text-[#0B0D17] transition hover:brightness-95 active:scale-[0.99]"
             >
               <span className="text-[15px] font-bold text-[#0B0D17]">
-                Do {displayRoutineTitle} today
+                {t.doTodayCta(displayRoutineTitle)}
               </span>
               <ArrowRight className="h-[16px] w-[16px] text-[#0B0D17]" strokeWidth={2.4} />
             </button>
@@ -315,7 +319,7 @@ export function ExpandedWeeklyGoal({
 
           {/* This Week */}
           <div className="flex flex-col rounded-[24px] bg-white px-[18px] pt-[16px] pb-[6px]">
-            <h2 className="text-[17px] font-semibold text-[#0B0D17]">This week</h2>
+            <h2 className="text-[17px] font-semibold text-[#0B0D17]">{t.thisWeek}</h2>
             <div className="h-[8px] w-full" />
 
             {weekDays.map((day) => {
@@ -333,9 +337,9 @@ export function ExpandedWeeklyGoal({
 
               const workoutMeta =
                 day.workout && day.isLatestLoggedInWeek && durationMin > 0
-                  ? `${volumeKg} kg · ${durationMin} min`
+                  ? `${volumeKg} ${t.kg} · ${durationMin} ${t.min}`
                   : day.workout
-                    ? `${volumeKg} kg`
+                    ? `${volumeKg} ${t.kg}`
                     : "";
 
               const handleRowClick = () => {
@@ -405,7 +409,7 @@ export function ExpandedWeeklyGoal({
                       ? day.workout!.title
                       : isPlannedToday
                         ? displayRoutineTitle
-                        : "Rest"}
+                        : t.restDay}
                   </div>
 
                   {/* Meta */}
@@ -416,7 +420,7 @@ export function ExpandedWeeklyGoal({
                   )}
                   {isPlannedToday && (
                     <div className="shrink-0 text-[13px] font-normal text-[#2E3BFF]">
-                      Planned · ~{plannedDurationMinutes} min
+                      {t.plannedMeta(plannedDurationMinutes)}
                     </div>
                   )}
                 </div>
@@ -427,9 +431,9 @@ export function ExpandedWeeklyGoal({
           {/* Last 5 weeks */}
           <div className="flex flex-col gap-[14px] rounded-[24px] bg-white p-[18px]">
             <div className="flex items-center justify-between">
-              <h2 className="text-[17px] font-semibold text-[#0B0D17]">Last 5 weeks</h2>
+              <h2 className="text-[17px] font-semibold text-[#0B0D17]">{t.last5Weeks}</h2>
               <span className="text-[12px] font-normal text-[#5E6275]">
-                Avg {avgPerWeek.toFixed(1)} / week
+                {t.avgPerWeek(avgPerWeek.toFixed(1))}
               </span>
             </div>
 
@@ -443,7 +447,7 @@ export function ExpandedWeeklyGoal({
                 <div className="absolute left-0 right-0 h-[1.5px] bg-[#2E3BFF]/40" />
                 <div className="relative rounded-full bg-[#E5E7FF] px-[8px] py-[2px]">
                   <span className=" block text-[10px] font-semibold leading-tight text-[#2E3BFF]">
-                    Goal {weeklyGoal}
+                    {t.goalTag(weeklyGoal)}
                   </span>
                 </div>
               </div>
@@ -483,7 +487,7 @@ export function ExpandedWeeklyGoal({
             </div>
 
             <p className="text-[13px] font-normal text-[#5E6275]">
-              Hitting {weeklyGoal} today makes this your best week in over a month.
+              {t.bestWeekInsight(weeklyGoal)}
             </p>
           </div>
 
@@ -494,10 +498,10 @@ export function ExpandedWeeklyGoal({
           >
             <div className="flex flex-col gap-[2px]">
               <span className="text-[15px] font-semibold text-[#0B0D17]">
-                Sessions per week
+                {t.sessionsPerWeek}
               </span>
               <span className="text-[12px] font-normal text-[#5E6275]">
-                Resets every Sunday
+                {t.resetsEverySunday}
               </span>
             </div>
 

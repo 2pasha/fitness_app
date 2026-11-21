@@ -2,6 +2,7 @@
 
 import React from "react";
 import { House, Dumbbell, TrendingUp, Sparkles } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export type ExpandedViewType =
   | null
@@ -9,6 +10,42 @@ export type ExpandedViewType =
   | "muscular_load"
   | "today_plan"
   | "last_session";
+
+export function LanguageToggle({ compact = false }: { compact?: boolean }) {
+  const { locale, setLocale } = useI18n();
+  return (
+    <div
+      className={`inline-flex items-center rounded-full bg-white p-[3px] shadow-2xs ${
+        compact ? "h-[44px]" : "h-[44px]"
+      }`}
+      role="group"
+      aria-label="Language switcher"
+    >
+      <button
+        type="button"
+        onClick={() => setLocale("en")}
+        className={`flex h-full items-center justify-center rounded-full px-3 text-[12px] font-bold transition ${
+          locale === "en"
+            ? "bg-[#0B0D17] text-white"
+            : "text-[#5E6275] hover:text-[#0B0D17]"
+        }`}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        onClick={() => setLocale("uk")}
+        className={`flex h-full items-center justify-center rounded-full px-3 text-[12px] font-bold transition ${
+          locale === "uk"
+            ? "bg-[#0B0D17] text-white"
+            : "text-[#5E6275] hover:text-[#0B0D17]"
+        }`}
+      >
+        UA
+      </button>
+    </div>
+  );
+}
 
 export function GoalProgressRing({
   completed,
@@ -27,6 +64,7 @@ export function GoalProgressRing({
   unitFontSize?: string;
   letterSpacing?: string;
 }) {
+  const { t } = useI18n();
   const strokeWidth = Math.round((size / 2) * (1 - innerRadiusRatio));
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -70,7 +108,7 @@ export function GoalProgressRing({
           {completed}/{goal}
         </span>
         <span className={`mt-1 font-normal leading-none text-[#A9ADC2] ${unitFontSize}`}>
-          sessions
+          {t.sessions}
         </span>
       </div>
     </div>
@@ -82,6 +120,7 @@ export function CompactNavPill({
 }: {
   onHomeClick?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="pointer-events-auto flex h-[60px] items-center gap-[4px] rounded-[30px] bg-[#0B0D17]/[0.95] p-[6px] shadow-[0_8px_24px_rgba(11,13,23,0.25)] backdrop-blur-md">
       <button
@@ -91,26 +130,26 @@ export function CompactNavPill({
       >
         <House className="h-[20px] w-[20px] text-[#0B0D17]" />
         <span className="text-[14px] font-bold leading-none text-[#0B0D17]">
-          Home
+          {t.navHome}
         </span>
       </button>
       <button
         type="button"
-        aria-label="Workouts"
+        aria-label={t.navWorkouts}
         className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
       >
         <Dumbbell className="h-[20px] w-[20px]" />
       </button>
       <button
         type="button"
-        aria-label="Progress"
+        aria-label={t.navProgress}
         className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
       >
         <TrendingUp className="h-[20px] w-[20px]" />
       </button>
       <button
         type="button"
-        aria-label="Plan"
+        aria-label={t.navPlan}
         className="flex h-[48px] w-[48px] items-center justify-center rounded-[24px] text-[#8A8FA8] transition hover:text-white/80 active:scale-95"
       >
         <Sparkles className="h-[20px] w-[20px]" />
@@ -125,7 +164,10 @@ export function MobileBottomTabBar({
   onHomeClick?: () => void;
 }) {
   return (
-    <div className="pointer-events-none fixed bottom-3 left-0 right-0 z-40 flex justify-center lg:hidden">
+    <div
+      className="pointer-events-none fixed left-0 right-0 z-40 flex justify-center lg:hidden"
+      style={{ bottom: "calc(12px + env(safe-area-inset-bottom))" }}
+    >
       <CompactNavPill onHomeClick={onHomeClick} />
     </div>
   );
